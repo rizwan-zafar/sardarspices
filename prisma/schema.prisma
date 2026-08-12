@@ -1,0 +1,146 @@
+// Prisma schema for Sardar Spices e-commerce
+// Simple, normalized relational design (MySQL)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum CategoryStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum BlogStatus {
+  PUBLISHED
+  DRAFT
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  COD
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  @@map("admins")
+}
+
+model Category {
+  id          Int            @id @default(autoincrement())
+  name        String
+  slug        String         @unique
+  description String?        @db.Text
+  image       String?
+  status      CategoryStatus @default(ACTIVE)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          Int           @id @default(autoincrement())
+  name        String
+  slug        String        @unique
+  description String?       @db.Text
+  price       Decimal       @db.Decimal(10, 2)
+  images      Json?
+  stock       Int           @default(0)
+  status      ProductStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  orderItems OrderItem[]
+
+  @@index([categoryId])
+  @@map("products")
+}
+
+model Order {
+  id            Int           @id @default(autoincrement())
+  orderNumber   String        @unique
+  customerName  String
+  phone         String
+  address       String        @db.Text
+  paymentMethod PaymentMethod @default(COD)
+  status        OrderStatus   @default(PENDING)
+  totalAmount   Decimal       @db.Decimal(10, 2)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  items OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          Int      @id @default(autoincrement())
+  orderId     Int
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   Int?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName String
+  price       Decimal  @db.Decimal(10, 2)
+  quantity    Int
+  subtotal    Decimal  @db.Decimal(10, 2)
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+model Blog {
+  id            Int        @id @default(autoincrement())
+  title         String
+  slug          String     @unique
+  featuredImage String?
+  content       String     @db.LongText
+  author        String
+  status        BlogStatus @default(DRAFT)
+  publishedAt   DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@map("blogs")
+}
+
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("contact_messages")
+}
