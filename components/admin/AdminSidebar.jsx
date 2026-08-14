@@ -26,7 +26,7 @@ export default function AdminSidebar({ admin, className = "", onNavigate }) {
     <div className={`flex flex-col h-full bg-brand-900 text-brand-100 ${className}`}>
       <div className="flex items-center gap-2 px-5 h-16 border-b border-brand-800">
         <span className="text-2xl">🌶️</span>
-        <span className="font-display font-bold text-white">Sardar Spices</span>
+        <span className="font-display font-bold text-white">spicer</span>
       </div>
 
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto">

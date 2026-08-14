@@ -12,9 +12,9 @@ async function getBlog(slug) {
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const blog = await getBlog(slug);
-  if (!blog) return { title: "Post Not Found | Sardar Spices" };
+  if (!blog) return { title: "Post Not Found | spicer" };
   return {
-    title: `${blog.title} | Sardar Spices`,
+    title: `${blog.title} | spicer`,
     description: blog.content?.slice(0, 150),
   };
 }

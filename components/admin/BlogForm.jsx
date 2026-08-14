@@ -16,7 +16,7 @@ export default function BlogForm({ blog }) {
 
   const [form, setForm] = useState({
     title: blog?.title || "",
-    author: blog?.author || "Sardar Spices Team",
+    author: blog?.author || "spicer Team",
     content: blog?.content || "",
     featuredImage: blog?.featuredImage || "",
     status: blog?.status || "DRAFT",

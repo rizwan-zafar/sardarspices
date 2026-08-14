@@ -1,4 +1,4 @@
-# Sardar Spices — E-commerce Platform
+# spicer — E-commerce Platform
 
 A modern, full-stack e-commerce website built entirely with **Next.js (App Router)**,
 **plain JavaScript**, and **MySQL** (via **Prisma**). The customer storefront,
@@ -94,16 +94,16 @@ Customer → Products → Cart (localStorage) → Checkout (name/phone/address, 
 ### 1. Prerequisites
 
 - Node.js 20+
-- A running MySQL server with a database named `sardarspices`
+- A running MySQL server with a database named `spicer`
 
 ### 2. Configure environment
 
 Copy/check `.env` in the project root (already created for local dev):
 
 ```
-DATABASE_URL="mysql://root:@localhost:3306/sardarspices"
+DATABASE_URL="mysql://root:@localhost:3306/spicer"
 JWT_SECRET="change-this-in-production"
-ADMIN_SEED_EMAIL="admin@sardarspices.com"
+ADMIN_SEED_EMAIL="admin@spicer.com"
 ADMIN_SEED_PASSWORD="Admin@123"
 ```
 
@@ -145,7 +145,7 @@ admin panel.
 
 **Default admin login:**
 
-- Email: `admin@sardarspices.com`
+- Email: `admin@spicer.com`
 - Password: `Admin@123`
 
 Change these (or the `.env` values before seeding) before deploying to production.

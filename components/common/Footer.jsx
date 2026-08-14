@@ -7,7 +7,7 @@ export default function Footer() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <span className="text-2xl">🌶️</span>
-            <span className="text-lg font-extrabold text-white">Sardar Spices</span>
+            <span className="text-lg font-extrabold text-white">spicer</span>
           </div>
           <p className="text-sm text-brand-200 leading-relaxed">
             Authentic, premium quality spices and dry fruits — bringing the true
@@ -46,14 +46,14 @@ export default function Footer() {
           <ul className="space-y-2 text-sm text-brand-200">
             <li>📍 123 Spice Market Road, Lahore, Pakistan</li>
             <li>📞 +92 300 1234567</li>
-            <li>✉️ support@sardarspices.com</li>
+            <li>✉️ support@spicer.com</li>
           </ul>
         </div>
       </div>
 
       <div className="border-t border-brand-800">
         <div className="container-app py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-brand-300">
-          <p>&copy; {new Date().getFullYear()} Sardar Spices. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} spicer. All rights reserved.</p>
           <Link href="/admin/login" className="hover:text-white transition-colors">
             Admin Login
           </Link>

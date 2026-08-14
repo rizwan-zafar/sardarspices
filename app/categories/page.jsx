@@ -4,8 +4,8 @@ import CategoryCard from "@/components/categories/CategoryCard";
 import EmptyState from "@/components/common/EmptyState";
 
 export const metadata = {
-  title: "Categories | Sardar Spices",
-  description: "Browse all product categories at Sardar Spices.",
+  title: "Categories | spicer",
+  description: "Browse all product categories at spicer.",
 };
 
 export const dynamic = "force-dynamic";

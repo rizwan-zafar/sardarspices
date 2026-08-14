@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 const CartContext = createContext(null);
-const STORAGE_KEY = "sardarspices_cart";
+const STORAGE_KEY = "spicer_cart";
 
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]);

@@ -49,9 +49,9 @@ const items = [
   { path: "public/images/blog/masala-blending.svg", label: "The Art of Blending", from: "#8B0000", to: "#C1440E", icon: "🥘" },
 
   // Hero / misc
-  { path: "public/images/hero-spices.svg", label: "Sardar Spices", from: "#B3311F", to: "#7B3F00", icon: "🌶️" },
+  { path: "public/images/hero-spices.svg", label: "spicer", from: "#B3311F", to: "#7B3F00", icon: "🌶️" },
   { path: "public/images/about-hero.svg", label: "Our Story", from: "#7B3F00", to: "#4A2410", icon: "🏺" },
-  { path: "public/images/placeholder.svg", label: "Sardar Spices", from: "#8B6B2E", to: "#4A3410", icon: "🧂" },
+  { path: "public/images/placeholder.svg", label: "spicer", from: "#8B6B2E", to: "#4A3410", icon: "🧂" },
 ];
 
 for (const item of items) {

@@ -25,7 +25,7 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-2 font-display">
           <span className="text-2xl">🌶️</span>
           <span className="text-lg font-extrabold tracking-tight text-brand-700">
-            Sardar Spices
+            spicer
           </span>
         </Link>
 

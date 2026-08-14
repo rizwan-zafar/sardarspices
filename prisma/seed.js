@@ -13,14 +13,14 @@ function slugify(text) {
 }
 
 async function main() {
-  const adminEmail = process.env.ADMIN_SEED_EMAIL || "admin@sardarspices.com";
+  const adminEmail = process.env.ADMIN_SEED_EMAIL || "admin@spicer.com";
   const adminPassword = process.env.ADMIN_SEED_PASSWORD || "Admin@123";
 
   const existingAdmin = await prisma.admin.findUnique({ where: { email: adminEmail } });
   if (!existingAdmin) {
     const hashed = await bcrypt.hash(adminPassword, 10);
     await prisma.admin.create({
-      data: { name: "Sardar Spices Admin", email: adminEmail, password: hashed },
+      data: { name: "spicer Admin", email: adminEmail, password: hashed },
     });
     console.log(`Admin created -> email: ${adminEmail} / password: ${adminPassword}`);
   } else {
@@ -191,21 +191,21 @@ async function main() {
   const blogsData = [
     {
       title: "5 Health Benefits of Turmeric You Should Know",
-      author: "Sardar Spices Team",
+      author: "spicer Team",
       content:
-        "Turmeric has been used for centuries in South Asian kitchens, not just for its warm color and flavor but for its remarkable health properties. Rich in curcumin, turmeric is known for its anti-inflammatory and antioxidant effects. Adding a pinch of quality turmeric powder to your daily meals, milk, or teas is a simple way to support overall wellness. At Sardar Spices, we source our turmeric from trusted farms and grind it fresh to preserve its natural potency and aroma.",
+        "Turmeric has been used for centuries in South Asian kitchens, not just for its warm color and flavor but for its remarkable health properties. Rich in curcumin, turmeric is known for its anti-inflammatory and antioxidant effects. Adding a pinch of quality turmeric powder to your daily meals, milk, or teas is a simple way to support overall wellness. At spicer, we source our turmeric from trusted farms and grind it fresh to preserve its natural potency and aroma.",
       featuredImage: "/images/blog/turmeric-benefits.svg",
     },
     {
       title: "How to Store Spices for Maximum Freshness",
-      author: "Sardar Spices Team",
+      author: "spicer Team",
       content:
         "Proper storage is the secret to keeping your spices flavorful for longer. Always store spices in airtight containers away from direct sunlight, heat, and moisture. Whole spices tend to retain their potency longer than ground ones, so consider buying whole and grinding as needed. Label your containers with purchase dates and try to use spices within 6-12 months for the best flavor. A well organized spice cabinet not only keeps your ingredients fresh but also makes cooking a joy.",
       featuredImage: "/images/blog/spice-storage.svg",
     },
     {
       title: "The Art of Blending: What Makes a Great Masala",
-      author: "Sardar Spices Team",
+      author: "spicer Team",
       content:
         "A great masala blend is more than just a mix of spices — it's a balance of aroma, heat, and depth. Our master blenders carefully select and roast each spice to unlock its full flavor before grinding. Whether it's our Biryani Masala or Garam Masala, every batch is crafted in small quantities to ensure consistent quality and freshness. Discover the difference a well-crafted blend can make in your everyday cooking.",
       featuredImage: "/images/blog/masala-blending.svg",

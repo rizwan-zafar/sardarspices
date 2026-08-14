@@ -17,9 +17,9 @@ async function getProduct(slug) {
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const product = await getProduct(slug);
-  if (!product) return { title: "Product Not Found | Sardar Spices" };
+  if (!product) return { title: "Product Not Found | spicer" };
   return {
-    title: `${product.name} | Sardar Spices`,
+    title: `${product.name} | spicer`,
     description: product.description?.slice(0, 150),
   };
 }

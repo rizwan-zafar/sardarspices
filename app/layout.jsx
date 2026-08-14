@@ -16,9 +16,9 @@ const body = Inter({
 });
 
 export const metadata = {
-  title: "Sardar Spices | Premium Spices & Dry Fruits",
+  title: "spicer | Premium Spices & Dry Fruits",
   description:
-    "Shop authentic, premium quality spices, masala blends, and dry fruits online from Sardar Spices. Cash on delivery available across Pakistan.",
+    "Shop authentic, premium quality spices, masala blends, and dry fruits online from spicer. Cash on delivery available across Pakistan.",
 };
 
 export default function RootLayout({ children }) {

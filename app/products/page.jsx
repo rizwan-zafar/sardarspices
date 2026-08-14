@@ -5,7 +5,7 @@ import ProductFilters from "@/components/products/ProductFilters";
 import PageLinks from "@/components/common/PageLinks";
 
 export const metadata = {
-  title: "All Products | Sardar Spices",
+  title: "All Products | spicer",
   description: "Browse our full range of premium spices, blends, and dry fruits.",
 };
 

@@ -33,7 +33,7 @@ export default function AdminShell({ admin, children }) {
         <header className="lg:hidden flex items-center justify-between h-16 px-4 bg-white border-b border-stone-200 sticky top-0 z-30">
           <div className="flex items-center gap-2">
             <span className="text-xl">🌶️</span>
-            <span className="font-display font-bold text-brand-800">Sardar Spices Admin</span>
+            <span className="font-display font-bold text-brand-800">spicer Admin</span>
           </div>
           <button
             onClick={() => setMobileOpen(true)}

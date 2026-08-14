@@ -1,8 +1,8 @@
 import ContactForm from "@/components/ContactForm";
 
 export const metadata = {
-  title: "Contact Us | Sardar Spices",
-  description: "Get in touch with Sardar Spices — we'd love to hear from you.",
+  title: "Contact Us | spicer",
+  description: "Get in touch with spicer — we'd love to hear from you.",
 };
 
 export default function ContactPage() {
@@ -37,7 +37,7 @@ export default function ContactPage() {
             <span className="text-2xl">✉️</span>
             <div>
               <h3 className="font-semibold text-stone-800">Email</h3>
-              <p className="text-sm text-stone-500 mt-1">support@sardarspices.com</p>
+              <p className="text-sm text-stone-500 mt-1">support@spicer.com</p>
             </div>
           </div>
           <div className="rounded-2xl border border-stone-200 bg-white p-6 flex items-start gap-4">

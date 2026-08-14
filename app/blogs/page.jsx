@@ -5,7 +5,7 @@ import PageLinks from "@/components/common/PageLinks";
 import EmptyState from "@/components/common/EmptyState";
 
 export const metadata = {
-  title: "Blog | Sardar Spices",
+  title: "Blog | spicer",
   description: "Recipes, tips, and stories from the world of spices.",
 };
 

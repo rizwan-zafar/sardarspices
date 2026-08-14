@@ -16,10 +16,10 @@ async function getCategory(slug) {
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const category = await getCategory(slug);
-  if (!category) return { title: "Category Not Found | Sardar Spices" };
+  if (!category) return { title: "Category Not Found | spicer" };
   return {
-    title: `${category.name} | Sardar Spices`,
-    description: category.description || `Shop ${category.name} at Sardar Spices.`,
+    title: `${category.name} | spicer`,
+    description: category.description || `Shop ${category.name} at spicer.`,
   };
 }
 

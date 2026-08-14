@@ -2,7 +2,7 @@ import { getAdminSession } from "@/lib/auth";
 import AdminShell from "@/components/admin/AdminShell";
 
 export const metadata = {
-  title: "Admin | Sardar Spices",
+  title: "Admin | spicer",
   robots: { index: false, follow: false },
 };
 
