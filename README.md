@@ -55,6 +55,7 @@ lib/
   auth.js        Password hashing + JWT session helpers
   utils.js       Formatting, slugs, misc helpers
   validation.js  Server-side input validation
+  mail.js        Order emails and receipt HTML
 prisma/
   schema.prisma  Database schema
   seed.js        Seed script (admin user, categories, products, blogs)
@@ -82,11 +83,12 @@ full field-level detail.
 ## 4. Application Flow
 
 ```
-Customer → Products → Cart (localStorage) → Checkout (name/phone/address, COD)
+Customer → Products → Cart (localStorage) → Checkout (name/email/phone/address, COD)
   → POST /api/orders (transaction: validate stock → decrement stock → create order)
-  → Order saved in MySQL → Confirmation page
-  → Admin Dashboard sees the order → Admin updates order status
-     (cancelling an order restores stock automatically)
+  → Order saved in MySQL → Confirmation emails sent to customer + admin
+  → Confirmation page
+  → Admin Dashboard sees the order → Admin can download the receipt
+  → Admin updates order status (cancelling an order restores stock automatically)
 ```
 
 ## Getting Started
@@ -101,11 +103,19 @@ Customer → Products → Cart (localStorage) → Checkout (name/phone/address, 
 Copy/check `.env` in the project root (already created for local dev):
 
 ```
-DATABASE_URL="mysql://root:@localhost:3306/spicer"
+DATABASE_URL="mysql://root:@localhost:3306/sardarspices"
 JWT_SECRET="change-this-in-production"
-ADMIN_SEED_EMAIL="admin@spicer.com"
+ADMIN_SEED_EMAIL="admin@sardarspices.com"
 ADMIN_SEED_PASSWORD="Admin@123"
+ADMIN_NOTIFY_EMAIL="admin@sardarspices.com"
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_USER=""
+SMTP_PASS=""
+SMTP_FROM="Sardar Spices <noreply@sardarspices.com>"
 ```
+
+Fill in `SMTP_USER` and `SMTP_PASS` to send order emails. For Gmail, use an App Password. If SMTP is left empty, orders still work — emails are just skipped.
 
 ### 3. Install dependencies
 
@@ -153,6 +163,10 @@ Change these (or the `.env` values before seeding) before deploying to productio
 ## Business Rules Implemented
 
 - Guest checkout only — no customer accounts, wishlist, or reviews.
+- Checkout requires name, email, phone, and address.
+- After a successful order, a confirmation email is sent to the customer and
+  a new-order email is sent to the admin (requires SMTP settings in `.env`).
+- Admin can download an HTML receipt from the order list or order detail page.
 - Cash on Delivery is the only payment method.
 - Stock is validated and decremented atomically inside a database transaction
   when an order is placed; it can never go negative.

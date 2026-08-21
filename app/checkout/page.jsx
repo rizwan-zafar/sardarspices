@@ -17,7 +17,7 @@ export default function CheckoutPage() {
   const { showToast } = useToast();
   const router = useRouter();
 
-  const [form, setForm] = useState({ customerName: "", phone: "", address: "" });
+  const [form, setForm] = useState({ customerName: "", email: "", phone: "", address: "" });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
@@ -97,6 +97,16 @@ export default function CheckoutPage() {
             onChange={handleChange}
             placeholder="e.g. Ahmed Khan"
             error={errors.customerName}
+            required
+          />
+          <Input
+            label="Email Address"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="e.g. ahmed@example.com"
+            error={errors.email}
             required
           />
           <Input

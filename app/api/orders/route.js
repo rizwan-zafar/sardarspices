@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getAdminSessionFromRequest } from "@/lib/auth";
 import { generateOrderNumber, toPlain } from "@/lib/utils";
 import { validateCheckout, hasErrors } from "@/lib/validation";
+import { sendOrderEmails } from "@/lib/mail";
 
 export async function GET(request) {
   const session = getAdminSessionFromRequest(request);
@@ -23,6 +24,7 @@ export async function GET(request) {
           OR: [
             { orderNumber: { contains: search } },
             { customerName: { contains: search } },
+            { email: { contains: search } },
             { phone: { contains: search } },
           ],
         }
@@ -106,6 +108,7 @@ export async function POST(request) {
         data: {
           orderNumber: generateOrderNumber(),
           customerName: data.customerName.trim(),
+          email: data.email.trim().toLowerCase(),
           phone: data.phone.trim(),
           address: data.address.trim(),
           paymentMethod: "COD",
@@ -117,7 +120,15 @@ export async function POST(request) {
       });
     });
 
-    return NextResponse.json({ order: toPlain(order) }, { status: 201 });
+    const plainOrder = toPlain(order);
+
+    try {
+      await sendOrderEmails(plainOrder);
+    } catch (mailError) {
+      console.error("Order email error:", mailError);
+    }
+
+    return NextResponse.json({ order: plainOrder }, { status: 201 });
   } catch (error) {
     console.error("Order creation error:", error);
     return NextResponse.json(

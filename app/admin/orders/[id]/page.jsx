@@ -72,9 +72,17 @@ export default function AdminOrderDetailPage({ params }) {
           <h1 className="font-display text-2xl font-bold text-stone-800">{order.orderNumber}</h1>
           <p className="text-stone-500">Placed on {formatDateTime(order.createdAt)}</p>
         </div>
-        <span className={`self-start rounded-full px-3 py-1.5 text-sm font-semibold ${orderStatusColor(order.status)}`}>
-          {order.status}
-        </span>
+        <div className="flex items-center gap-3 self-start">
+          <a
+            href={`/api/orders/${order.id}/receipt`}
+            className="inline-flex items-center rounded-full bg-white border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50"
+          >
+            Download Receipt
+          </a>
+          <span className={`rounded-full px-3 py-1.5 text-sm font-semibold ${orderStatusColor(order.status)}`}>
+            {order.status}
+          </span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -108,6 +116,10 @@ export default function AdminOrderDetailPage({ params }) {
               <div>
                 <dt className="text-stone-400 text-xs">Name</dt>
                 <dd className="text-stone-700 font-medium">{order.customerName}</dd>
+              </div>
+              <div>
+                <dt className="text-stone-400 text-xs">Email</dt>
+                <dd className="text-stone-700 font-medium">{order.email || "—"}</dd>
               </div>
               <div>
                 <dt className="text-stone-400 text-xs">Phone</dt>

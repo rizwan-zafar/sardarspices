@@ -88,6 +88,7 @@ model Order {
   id            Int           @id @default(autoincrement())
   orderNumber   String        @unique
   customerName  String
+  email         String        @default("")
   phone         String
   address       String        @db.Text
   paymentMethod PaymentMethod @default(COD)

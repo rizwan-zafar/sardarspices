@@ -27,6 +27,7 @@ export default async function CheckoutSuccessPage({ searchParams }) {
         <h1 className="font-display text-3xl font-bold text-stone-800 mb-2">Order Placed!</h1>
         <p className="text-stone-500">
           Thank you, {plainOrder.customerName}. Your order has been received and will be delivered soon.
+          {plainOrder.email ? ` A confirmation email has been sent to ${plainOrder.email}.` : ""}
         </p>
       </div>
 
@@ -62,6 +63,10 @@ export default async function CheckoutSuccessPage({ searchParams }) {
           <div>
             <p className="text-stone-400 text-xs mb-1">Delivery Address</p>
             <p className="text-stone-700">{plainOrder.address}</p>
+          </div>
+          <div>
+            <p className="text-stone-400 text-xs mb-1">Email</p>
+            <p className="text-stone-700">{plainOrder.email || "—"}</p>
           </div>
           <div>
             <p className="text-stone-400 text-xs mb-1">Phone</p>

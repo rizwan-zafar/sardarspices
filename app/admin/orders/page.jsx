@@ -93,9 +93,14 @@ export default function AdminOrdersPage() {
                 </td>
                 <td className="px-4 py-3 text-stone-500 whitespace-nowrap">{formatDateTime(order.createdAt)}</td>
                 <td className="px-4 py-3">
-                  <Link href={`/admin/orders/${order.id}`} className="text-sm font-medium text-brand-600 hover:text-brand-800">
-                    View →
-                  </Link>
+                  <div className="flex items-center gap-3 whitespace-nowrap">
+                    <Link href={`/admin/orders/${order.id}`} className="text-sm font-medium text-brand-600 hover:text-brand-800">
+                      View
+                    </Link>
+                    <a href={`/api/orders/${order.id}/receipt`} className="text-sm font-medium text-stone-600 hover:text-stone-800">
+                      Receipt
+                    </a>
+                  </div>
                 </td>
               </tr>
             ))}
