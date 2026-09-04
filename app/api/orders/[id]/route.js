@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getAdminSessionFromRequest } from "@/lib/auth";
 import { toPlain, ORDER_STATUSES } from "@/lib/utils";
+import { syncProductSummary } from "@/lib/product";
 
 export async function GET(request, { params }) {
   const session = getAdminSessionFromRequest(request);
@@ -49,13 +50,28 @@ export async function PATCH(request, { params }) {
   const order = await prisma.$transaction(async (tx) => {
     // Restore stock only when transitioning INTO cancelled from a non-cancelled state.
     if (status === "CANCELLED" && existing.status !== "CANCELLED") {
+      const touchedProducts = new Set();
       for (const item of existing.items) {
+        if (item.variantId) {
+          const variant = await tx.productVariant.findUnique({ where: { id: item.variantId } });
+          if (variant) {
+            await tx.productVariant.update({
+              where: { id: item.variantId },
+              data: { stock: { increment: item.quantity } },
+            });
+            touchedProducts.add(variant.productId);
+            continue;
+          }
+        }
         if (item.productId) {
           await tx.product.update({
             where: { id: item.productId },
             data: { stock: { increment: item.quantity } },
           });
         }
+      }
+      for (const productId of touchedProducts) {
+        await syncProductSummary(tx, productId);
       }
     }
 

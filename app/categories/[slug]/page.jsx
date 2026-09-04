@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { toPlain } from "@/lib/utils";
+import { productListInclude } from "@/lib/product";
 import ProductGrid from "@/components/products/ProductGrid";
 import PageLinks from "@/components/common/PageLinks";
 
@@ -38,7 +39,7 @@ export default async function CategoryDetailPage({ params, searchParams }) {
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: { category: { select: { name: true, slug: true } } },
+      include: productListInclude,
     }),
     prisma.product.count({ where }),
   ]);

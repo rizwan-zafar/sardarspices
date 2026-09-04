@@ -6,7 +6,10 @@ import ProductForm from "@/components/admin/ProductForm";
 
 export default async function EditProductPage({ params }) {
   const { id } = await params;
-  const product = await prisma.product.findUnique({ where: { id: Number(id) } });
+  const product = await prisma.product.findUnique({
+    where: { id: Number(id) },
+    include: { variants: { orderBy: { id: "asc" } } },
+  });
   if (!product) notFound();
 
   return (

@@ -9,6 +9,12 @@ import EmptyState from "@/components/common/EmptyState";
 import Pagination from "@/components/common/Pagination";
 import { useToast } from "@/components/common/ToastContext";
 import { formatCurrency } from "@/lib/utils";
+import { cheapestInStockVariant, salePrice } from "@/lib/product";
+
+function listPrice(product) {
+  const variant = cheapestInStockVariant(product) || product.variants?.[0] || product;
+  return { ...salePrice(variant), hasMultiple: (product.variants?.length || 0) > 1 };
+}
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
@@ -72,11 +78,10 @@ export default function AdminProductsPage() {
         body: JSON.stringify({
           name: product.name,
           description: product.description,
-          price: product.price,
-          stock: product.stock,
           categoryId: product.categoryId,
           images: product.images,
           status: product.status === "ACTIVE" ? "INACTIVE" : "ACTIVE",
+          variants: product.variants,
         }),
       });
       if (!res.ok) throw new Error();
@@ -129,7 +134,9 @@ export default function AdminProductsPage() {
       ) : (
         <>
           <Table columns={["Image", "Name", "Category", "Price", "Stock", "Status", "Actions"]}>
-            {products.map((product) => (
+            {products.map((product) => {
+              const pricing = listPrice(product);
+              return (
               <tr key={product.id}>
                 <td className="px-4 py-3">
                   <div className="h-12 w-12 rounded-lg overflow-hidden bg-stone-100 flex items-center justify-center">
@@ -142,9 +149,24 @@ export default function AdminProductsPage() {
                 </td>
                 <td className="px-4 py-3 font-medium text-stone-800 max-w-xs">
                   <span className="line-clamp-1">{product.name}</span>
+                  {product.variants?.length > 1 && (
+                    <span className="block text-xs text-stone-400 mt-0.5">
+                      {product.variants.length} variations
+                    </span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-stone-600">{product.category?.name}</td>
-                <td className="px-4 py-3 text-stone-700">{formatCurrency(product.price)}</td>
+                <td className="px-4 py-3 text-stone-700">
+                  <span className="inline-flex flex-col">
+                    <span>
+                      {pricing.hasMultiple ? "From " : ""}
+                      {formatCurrency(pricing.price)}
+                    </span>
+                    {pricing.onSale && (
+                      <span className="text-xs text-stone-400 line-through">{formatCurrency(pricing.compareAt)}</span>
+                    )}
+                  </span>
+                </td>
                 <td className="px-4 py-3">
                   <span className={product.stock <= 5 ? "text-red-600 font-semibold" : "text-stone-700"}>
                     {product.stock}
@@ -171,7 +193,8 @@ export default function AdminProductsPage() {
                   </div>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </Table>
           <Pagination page={page} totalPages={totalPages} onChange={setPage} />
         </>

@@ -43,7 +43,7 @@ export default function CartPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-2 rounded-2xl border border-stone-200 bg-white px-5 sm:px-6">
           {items.map((item) => (
-            <CartItemRow key={item.productId} item={item} />
+            <CartItemRow key={item.variantId} item={item} />
           ))}
           <div className="py-4">
             <button

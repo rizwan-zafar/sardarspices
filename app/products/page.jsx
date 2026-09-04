@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { toPlain } from "@/lib/utils";
+import { productListInclude } from "@/lib/product";
 import ProductGrid from "@/components/products/ProductGrid";
 import ProductFilters from "@/components/products/ProductFilters";
 import PageLinks from "@/components/common/PageLinks";
@@ -38,7 +39,7 @@ async function getData(searchParams) {
       orderBy,
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: { category: { select: { name: true, slug: true } } },
+      include: productListInclude,
     }),
     prisma.product.count({ where }),
     prisma.category.findMany({ where: { status: "ACTIVE" }, orderBy: { name: "asc" } }),

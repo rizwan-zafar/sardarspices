@@ -4,6 +4,7 @@ import { getAdminSessionFromRequest } from "@/lib/auth";
 import { generateOrderNumber, toPlain } from "@/lib/utils";
 import { validateCheckout, hasErrors } from "@/lib/validation";
 import { sendOrderEmails } from "@/lib/mail";
+import { syncProductSummary } from "@/lib/product";
 
 export async function GET(request) {
   const session = getAdminSessionFromRequest(request);
@@ -56,52 +57,73 @@ export async function POST(request) {
       return NextResponse.json({ error: "Validation failed", errors }, { status: 422 });
     }
 
-    // Merge duplicate product entries and sanity-check quantities.
     const mergedItems = new Map();
     for (const item of data.items) {
       const productId = Number(item.productId);
+      const variantId = Number(item.variantId);
       const quantity = Number(item.quantity);
-      if (!productId || !Number.isInteger(quantity) || quantity <= 0) {
+      if (!productId || !variantId || !Number.isInteger(quantity) || quantity <= 0) {
         return NextResponse.json(
           { error: "Invalid item in cart. Please refresh your cart and try again." },
           { status: 422 }
         );
       }
-      mergedItems.set(productId, (mergedItems.get(productId) || 0) + quantity);
+      const key = `${productId}:${variantId}`;
+      const current = mergedItems.get(key);
+      mergedItems.set(key, {
+        productId,
+        variantId,
+        quantity: (current?.quantity || 0) + quantity,
+      });
     }
 
     const order = await prisma.$transaction(async (tx) => {
       let total = 0;
       const orderItemsData = [];
+      const touchedProducts = new Set();
 
-      for (const [productId, quantity] of mergedItems) {
-        const product = await tx.product.findUnique({ where: { id: productId } });
-        if (!product || product.status !== "ACTIVE") {
-          throw new Error(`"${product?.name || "This item"}" is no longer available.`);
+      for (const { productId, variantId, quantity } of mergedItems.values()) {
+        const variant = await tx.productVariant.findUnique({
+          where: { id: variantId },
+          include: { product: true },
+        });
+
+        if (!variant || variant.productId !== productId || variant.product.status !== "ACTIVE") {
+          throw new Error(`"${variant?.product?.name || "This item"}" is no longer available.`);
         }
-        if (product.stock < quantity) {
+        if (variant.stock < quantity) {
           throw new Error(
-            `Only ${product.stock} unit(s) of "${product.name}" left in stock. Please update your cart.`
+            `Only ${variant.stock} unit(s) of "${variant.product.name} (${variant.name})" left in stock. Please update your cart.`
           );
         }
 
-        const updateResult = await tx.product.updateMany({
-          where: { id: productId, stock: { gte: quantity } },
+        const updateResult = await tx.productVariant.updateMany({
+          where: { id: variantId, stock: { gte: quantity } },
           data: { stock: { decrement: quantity } },
         });
         if (updateResult.count === 0) {
-          throw new Error(`"${product.name}" just went out of stock. Please update your cart.`);
+          throw new Error(
+            `"${variant.product.name} (${variant.name})" just went out of stock. Please update your cart.`
+          );
         }
 
-        const subtotal = Number(product.price) * quantity;
+        touchedProducts.add(productId);
+
+        const subtotal = Number(variant.price) * quantity;
         total += subtotal;
         orderItemsData.push({
-          productId: product.id,
-          productName: product.name,
-          price: product.price,
+          productId: variant.product.id,
+          variantId: variant.id,
+          productName: variant.product.name,
+          variantName: variant.name,
+          price: variant.price,
           quantity,
           subtotal,
         });
+      }
+
+      for (const productId of touchedProducts) {
+        await syncProductSummary(tx, productId);
       }
 
       return tx.order.create({

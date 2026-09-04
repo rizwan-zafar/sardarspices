@@ -93,7 +93,10 @@ export default function AdminOrderDetailPage({ params }) {
               {order.items.map((item) => (
                 <div key={item.id} className="flex items-center justify-between py-3">
                   <div>
-                    <p className="font-medium text-stone-800">{item.productName}</p>
+                    <p className="font-medium text-stone-800">
+                      {item.productName}
+                      {item.variantName ? ` (${item.variantName})` : ""}
+                    </p>
                     <p className="text-sm text-stone-500">
                       {formatCurrency(item.price)} × {item.quantity}
                     </p>

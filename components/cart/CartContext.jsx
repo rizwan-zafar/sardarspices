@@ -1,9 +1,14 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { cheapestInStockVariant } from "@/lib/product";
 
 const CartContext = createContext(null);
-const STORAGE_KEY = "spicer_cart";
+const STORAGE_KEY = "spicer_cart_v2";
+
+function cartKey(item) {
+  return item.variantId;
+}
 
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]);
@@ -24,43 +29,48 @@ export function CartProvider({ children }) {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items, hydrated]);
 
-  const addItem = (product, quantity = 1) => {
+  const addItem = (product, quantity = 1, variant) => {
+    const selected = variant || cheapestInStockVariant(product);
+    if (!selected?.id) return;
+
     setItems((prev) => {
-      const existing = prev.find((i) => i.productId === product.id);
-      const maxQty = product.stock;
+      const existing = prev.find((i) => i.variantId === selected.id);
+      const maxQty = Number(selected.stock);
       if (existing) {
         const nextQty = Math.min(existing.quantity + quantity, maxQty);
         return prev.map((i) =>
-          i.productId === product.id ? { ...i, quantity: nextQty } : i
+          i.variantId === selected.id ? { ...i, quantity: nextQty, stock: maxQty, price: Number(selected.price) } : i
         );
       }
       return [
         ...prev,
         {
           productId: product.id,
+          variantId: selected.id,
           name: product.name,
+          variantName: selected.name,
           slug: product.slug,
-          price: Number(product.price),
+          price: Number(selected.price),
           image: Array.isArray(product.images) ? product.images[0] : null,
-          stock: product.stock,
+          stock: maxQty,
           quantity: Math.min(quantity, maxQty),
         },
       ];
     });
   };
 
-  const updateQuantity = (productId, quantity) => {
+  const updateQuantity = (variantId, quantity) => {
     setItems((prev) =>
       prev.map((i) =>
-        i.productId === productId
+        cartKey(i) === variantId
           ? { ...i, quantity: Math.max(1, Math.min(quantity, i.stock)) }
           : i
       )
     );
   };
 
-  const removeItem = (productId) => {
-    setItems((prev) => prev.filter((i) => i.productId !== productId));
+  const removeItem = (variantId) => {
+    setItems((prev) => prev.filter((i) => cartKey(i) !== variantId));
   };
 
   const clearCart = () => setItems([]);

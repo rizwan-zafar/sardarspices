@@ -1,14 +1,15 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { toPlain, formatCurrency } from "@/lib/utils";
+import { toPlain } from "@/lib/utils";
+import { productDetailInclude, productListInclude } from "@/lib/product";
 import ProductDetailActions from "@/components/products/ProductDetailActions";
 import ProductGrid from "@/components/products/ProductGrid";
 
 async function getProduct(slug) {
   const product = await prisma.product.findUnique({
     where: { slug },
-    include: { category: { select: { id: true, name: true, slug: true } } },
+    include: productDetailInclude,
   });
   if (!product || product.status !== "ACTIVE") return null;
   return toPlain(product);
@@ -36,7 +37,7 @@ export default async function ProductDetailPage({ params }) {
       id: { not: product.id },
     },
     take: 4,
-    include: { category: { select: { name: true, slug: true } } },
+    include: productListInclude,
   });
 
   const images = Array.isArray(product.images) && product.images.length > 0 ? product.images : [];
@@ -71,21 +72,6 @@ export default async function ProductDetailPage({ params }) {
             <h1 className="font-display text-3xl font-bold text-stone-800 mt-1">
               {product.name}
             </h1>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-3xl font-bold text-brand-700">
-              {formatCurrency(product.price)}
-            </span>
-            {product.stock > 0 ? (
-              <span className="rounded-full bg-green-100 text-green-700 text-xs font-semibold px-3 py-1">
-                {product.stock > 10 ? "In Stock" : `Only ${product.stock} left`}
-              </span>
-            ) : (
-              <span className="rounded-full bg-red-100 text-red-700 text-xs font-semibold px-3 py-1">
-                Out of Stock
-              </span>
-            )}
           </div>
 
           {product.description && (

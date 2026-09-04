@@ -152,10 +152,14 @@ async function main() {
       images: ["/images/products/coriander-powder.svg"],
     },
     {
-      name: "Karahi Masala 100g",
+      name: "Karahi Masala",
       category: "Spice Blends",
       price: 300,
-      stock: 38,
+      stock: 58,
+      variants: [
+        { name: "100g", price: 300, stock: 38 },
+        { name: "500g", price: 1250, stock: 20 },
+      ],
       description: "A robust masala blend designed for the perfect restaurant-style karahi at home.",
       images: ["/images/products/karahi-masala.svg"],
     },
@@ -171,6 +175,9 @@ async function main() {
 
   for (const p of productsData) {
     const slug = slugify(p.name);
+    const variants = p.variants || [{ name: "Standard", price: p.price, stock: p.stock }];
+    const totalStock = variants.reduce((sum, variant) => sum + variant.stock, 0);
+    const minPrice = Math.min(...variants.map((variant) => variant.price));
     await prisma.product.upsert({
       where: { slug },
       update: {},
@@ -178,15 +185,41 @@ async function main() {
         name: p.name,
         slug,
         description: p.description,
-        price: p.price,
-        stock: p.stock,
+        price: minPrice,
+        stock: totalStock,
         images: p.images,
         status: "ACTIVE",
         categoryId: categories[p.category].id,
+        variants: { create: variants },
       },
     });
   }
   console.log(`Seeded ${productsData.length} products.`);
+
+  const oldKarahi = await prisma.product.findFirst({
+    where: { slug: "karahi-masala-100g" },
+    include: { variants: true },
+  });
+  const newKarahi = await prisma.product.findFirst({
+    where: { slug: "karahi-masala" },
+  });
+  if (oldKarahi && newKarahi && oldKarahi.id !== newKarahi.id) {
+    await prisma.product.delete({ where: { id: newKarahi.id } });
+  }
+  if (oldKarahi && oldKarahi.variants.length <= 1) {
+    await prisma.productVariant.deleteMany({ where: { productId: oldKarahi.id } });
+    await prisma.productVariant.createMany({
+      data: [
+        { productId: oldKarahi.id, name: "100g", price: 300, stock: oldKarahi.stock || 38 },
+        { productId: oldKarahi.id, name: "500g", price: 1250, stock: 20 },
+      ],
+    });
+    await prisma.product.update({
+      where: { id: oldKarahi.id },
+      data: { name: "Karahi Masala", price: 300, stock: (oldKarahi.stock || 38) + 20 },
+    });
+    console.log("Updated existing Karahi Masala with 100g and 500g variations.");
+  }
 
   const blogsData = [
     {

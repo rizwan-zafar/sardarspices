@@ -36,7 +36,11 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+          items: items.map((i) => ({
+            productId: i.productId,
+            variantId: i.variantId,
+            quantity: i.quantity,
+          })),
         }),
       });
       const data = await res.json();
@@ -147,7 +151,7 @@ export default function CheckoutPage() {
           <h2 className="font-semibold text-lg text-stone-800 mb-4">Order Summary</h2>
           <div className="flex flex-col gap-3 max-h-72 overflow-y-auto pr-1">
             {items.map((item) => (
-              <div key={item.productId} className="flex items-center gap-3">
+              <div key={item.variantId} className="flex items-center gap-3">
                 <div className="h-12 w-12 rounded-lg overflow-hidden bg-brand-50 flex items-center justify-center flex-shrink-0">
                   {item.image ? (
                     <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
@@ -157,7 +161,9 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-stone-800 line-clamp-1">{item.name}</p>
-                  <p className="text-xs text-stone-500">Qty: {item.quantity}</p>
+                  <p className="text-xs text-stone-500">
+                    {item.variantName ? `${item.variantName} · ` : ""}Qty: {item.quantity}
+                  </p>
                 </div>
                 <span className="text-sm font-semibold text-stone-800">
                   {formatCurrency(item.price * item.quantity)}

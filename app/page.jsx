@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { toPlain, formatDate } from "@/lib/utils";
+import { productListInclude } from "@/lib/product";
 import ProductGrid from "@/components/products/ProductGrid";
 import CategoryCard from "@/components/categories/CategoryCard";
 import Button from "@/components/common/Button";
@@ -13,7 +14,7 @@ async function getHomeData() {
       where: { status: "ACTIVE" },
       orderBy: { createdAt: "desc" },
       take: 8,
-      include: { category: { select: { name: true, slug: true } } },
+      include: productListInclude,
     }),
     prisma.category.findMany({
       where: { status: "ACTIVE" },

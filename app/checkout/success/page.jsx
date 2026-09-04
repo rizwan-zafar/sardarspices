@@ -47,7 +47,9 @@ export default async function CheckoutSuccessPage({ searchParams }) {
           {plainOrder.items.map((item) => (
             <div key={item.id} className="flex justify-between text-sm">
               <span className="text-stone-700">
-                {item.productName} <span className="text-stone-400">× {item.quantity}</span>
+                {item.productName}
+                {item.variantName ? ` (${item.variantName})` : ""}{" "}
+                <span className="text-stone-400">× {item.quantity}</span>
               </span>
               <span className="font-medium text-stone-800">{formatCurrency(item.subtotal)}</span>
             </div>

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getAdminSessionFromRequest } from "@/lib/auth";
 import { slugify, ensureUniqueSlug, toPlain } from "@/lib/utils";
 import { validateProduct, hasErrors } from "@/lib/validation";
+import { productListInclude, normalizeVariants } from "@/lib/product";
 
 export async function GET(request) {
   const { searchParams } = request.nextUrl;
@@ -36,7 +37,7 @@ export async function GET(request) {
       orderBy,
       skip: (page - 1) * pageSize,
       take: pageSize,
-      include: { category: { select: { id: true, name: true, slug: true } } },
+      include: productListInclude,
     }),
     prisma.product.count({ where }),
   ]);
@@ -64,6 +65,10 @@ export async function POST(request) {
     return NextResponse.json({ error: "Validation failed", errors: { categoryId: "Category not found" } }, { status: 422 });
   }
 
+  const variants = normalizeVariants(data.variants);
+  const totalStock = variants.reduce((sum, variant) => sum + variant.stock, 0);
+  const minPrice = Math.min(...variants.map((variant) => variant.price));
+
   const baseSlug = slugify(data.name);
   const slug = await ensureUniqueSlug(prisma.product, baseSlug);
 
@@ -72,13 +77,21 @@ export async function POST(request) {
       name: data.name.trim(),
       slug,
       description: data.description?.trim() || null,
-      price: Number(data.price),
-      stock: Number(data.stock),
+      price: minPrice,
+      stock: totalStock,
       images: Array.isArray(data.images) ? data.images : [],
       status: data.status || "ACTIVE",
       categoryId: category.id,
+      variants: {
+        create: variants.map((variant) => ({
+          name: variant.name,
+          price: variant.price,
+          compareAtPrice: variant.compareAtPrice,
+          stock: variant.stock,
+        })),
+      },
     },
-    include: { category: { select: { id: true, name: true, slug: true } } },
+    include: productListInclude,
   });
 
   return NextResponse.json({ product: toPlain(product) }, { status: 201 });

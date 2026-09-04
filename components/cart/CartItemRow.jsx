@@ -24,6 +24,9 @@ export default function CartItemRow({ item }) {
         <Link href={`/products/${item.slug}`} className="font-semibold text-stone-800 hover:text-brand-700 line-clamp-1">
           {item.name}
         </Link>
+        {item.variantName && (
+          <p className="text-sm text-brand-700 mt-0.5">{item.variantName}</p>
+        )}
         <p className="text-sm text-stone-500 mt-0.5">{formatCurrency(item.price)} each</p>
         {item.quantity >= item.stock && (
           <p className="text-xs text-amber-600 mt-1">Max available stock reached</p>
@@ -34,11 +37,11 @@ export default function CartItemRow({ item }) {
         <QuantitySelector
           quantity={item.quantity}
           max={item.stock}
-          onChange={(q) => updateQuantity(item.productId, q)}
+          onChange={(q) => updateQuantity(item.variantId, q)}
           size="sm"
         />
         <button
-          onClick={() => removeItem(item.productId)}
+          onClick={() => removeItem(item.variantId)}
           className="text-xs text-red-500 hover:text-red-700 font-medium"
         >
           Remove

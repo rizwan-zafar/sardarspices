@@ -3,12 +3,13 @@ import { prisma } from "@/lib/db";
 import { getAdminSessionFromRequest } from "@/lib/auth";
 import { slugify, ensureUniqueSlug, toPlain } from "@/lib/utils";
 import { validateProduct, hasErrors } from "@/lib/validation";
+import { productListInclude, normalizeVariants, replaceProductVariants } from "@/lib/product";
 
 export async function GET(request, { params }) {
   const { id } = await params;
   const product = await prisma.product.findUnique({
     where: { id: Number(id) },
-    include: { category: { select: { id: true, name: true, slug: true } } },
+    include: productListInclude,
   });
   if (!product) {
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
@@ -45,19 +46,27 @@ export async function PUT(request, { params }) {
     slug = await ensureUniqueSlug(prisma.product, slugify(data.name), productId);
   }
 
-  const product = await prisma.product.update({
-    where: { id: productId },
-    data: {
-      name: data.name.trim(),
-      slug,
-      description: data.description?.trim() || null,
-      price: Number(data.price),
-      stock: Number(data.stock),
-      images: Array.isArray(data.images) ? data.images : existing.images,
-      status: data.status || existing.status,
-      categoryId: category.id,
-    },
-    include: { category: { select: { id: true, name: true, slug: true } } },
+  const variants = normalizeVariants(data.variants);
+
+  const product = await prisma.$transaction(async (tx) => {
+    await tx.product.update({
+      where: { id: productId },
+      data: {
+        name: data.name.trim(),
+        slug,
+        description: data.description?.trim() || null,
+        images: Array.isArray(data.images) ? data.images : existing.images,
+        status: data.status || existing.status,
+        categoryId: category.id,
+      },
+    });
+
+    await replaceProductVariants(tx, productId, variants);
+
+    return tx.product.findUnique({
+      where: { id: productId },
+      include: productListInclude,
+    });
   });
 
   return NextResponse.json({ product: toPlain(product) });
