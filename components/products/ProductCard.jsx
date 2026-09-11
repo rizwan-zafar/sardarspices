@@ -5,6 +5,7 @@ import { useCart } from "@/components/cart/CartContext";
 import { useToast } from "@/components/common/ToastContext";
 import { cheapestInStockVariant, salePrice } from "@/lib/product";
 import PriceDisplay from "./PriceDisplay";
+import SmartImage from "@/components/common/SmartImage";
 
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
@@ -32,15 +33,11 @@ export default function ProductCard({ product }) {
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
       <Link href={`/products/${product.slug}`} className="block">
         <div className="relative aspect-square overflow-hidden bg-brand-50">
-          {image ? (
-            <img
-              src={image}
-              alt={product.name}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-5xl">🌶️</div>
-          )}
+          <SmartImage
+            src={image}
+            alt={product.name}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
           {outOfStock && (
             <span className="absolute top-3 left-3 rounded-full bg-stone-900/80 px-2.5 py-1 text-xs font-semibold text-white">
               Out of Stock

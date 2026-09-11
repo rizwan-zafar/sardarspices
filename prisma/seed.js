@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { categories as catalogCategories, products as catalogProducts } from "./catalog.js";
 
 const prisma = new PrismaClient();
 
@@ -27,199 +28,44 @@ async function main() {
     console.log("Admin already exists, skipping.");
   }
 
-  const categoriesData = [
-    {
-      name: "Whole Spices",
-      description: "Sun-dried, unground spices packed with natural aroma and flavor.",
-      image: "/images/categories/whole-spices.svg",
-    },
-    {
-      name: "Ground Spices",
-      description: "Finely milled spices ready to use in everyday cooking.",
-      image: "/images/categories/ground-spices.svg",
-    },
-    {
-      name: "Spice Blends",
-      description: "Signature masala blends crafted for authentic regional flavor.",
-      image: "/images/categories/spice-blends.svg",
-    },
-    {
-      name: "Dry Fruits",
-      description: "Premium quality dry fruits and nuts sourced from trusted farms.",
-      image: "/images/categories/dry-fruits.svg",
-    },
-  ];
+  await prisma.product.deleteMany();
+  await prisma.category.deleteMany();
 
   const categories = {};
-  for (const cat of categoriesData) {
+  for (const cat of catalogCategories) {
     const slug = slugify(cat.name);
-    const category = await prisma.category.upsert({
-      where: { slug },
-      update: {},
-      create: { ...cat, slug, status: "ACTIVE" },
+    const category = await prisma.category.create({
+      data: { ...cat, slug, status: "ACTIVE" },
     });
     categories[cat.name] = category;
   }
-  console.log(`Seeded ${categoriesData.length} categories.`);
+  console.log(`Seeded ${catalogCategories.length} categories.`);
 
-  const productsData = [
-    {
-      name: "Red Chili Powder 500g",
-      category: "Ground Spices",
-      price: 450,
-      stock: 40,
-      description:
-        "Vibrant, fiery red chili powder made from sun-ripened chilies. Adds deep color and authentic heat to curries, marinades, and snacks.",
-      images: ["/images/products/red-chili-powder.svg"],
-    },
-    {
-      name: "Turmeric Powder 500g",
-      category: "Ground Spices",
-      price: 380,
-      stock: 55,
-      description:
-        "Pure, high-curcumin turmeric powder with a warm earthy aroma. A daily kitchen essential for color and flavor.",
-      images: ["/images/products/turmeric-powder.svg"],
-    },
-    {
-      name: "Whole Black Pepper 250g",
-      category: "Whole Spices",
-      price: 520,
-      stock: 30,
-      description:
-        "Bold, aromatic whole black peppercorns, hand-picked for maximum punch. Perfect for grinding fresh over any dish.",
-      images: ["/images/products/black-pepper.svg"],
-    },
-    {
-      name: "Green Cardamom 100g",
-      category: "Whole Spices",
-      price: 950,
-      stock: 20,
-      description:
-        "Fragrant green cardamom pods with a sweet, floral aroma — ideal for tea, desserts, and biryani.",
-      images: ["/images/products/green-cardamom.svg"],
-    },
-    {
-      name: "Chicken Biryani Masala 100g",
-      category: "Spice Blends",
-      price: 320,
-      stock: 45,
-      description:
-        "A perfectly balanced blend of 15 spices crafted to bring restaurant-style biryani flavor to your home kitchen.",
-      images: ["/images/products/biryani-masala.svg"],
-    },
-    {
-      name: "Garam Masala 100g",
-      category: "Spice Blends",
-      price: 280,
-      stock: 60,
-      description:
-        "Our signature warm spice blend, roasted and ground the traditional way for rich, layered flavor.",
-      images: ["/images/products/garam-masala.svg"],
-    },
-    {
-      name: "Premium Almonds 500g",
-      category: "Dry Fruits",
-      price: 1450,
-      stock: 25,
-      description:
-        "Handpicked, crunchy premium almonds — a healthy snack and a great addition to desserts and milk.",
-      images: ["/images/products/almonds.svg"],
-    },
-    {
-      name: "Cashew Nuts 500g",
-      category: "Dry Fruits",
-      price: 1650,
-      stock: 18,
-      description:
-        "Creamy, whole cashew nuts sourced for quality and freshness. Great for snacking and rich gravies.",
-      images: ["/images/products/cashews.svg"],
-    },
-    {
-      name: "Cumin Seeds 250g",
-      category: "Whole Spices",
-      price: 340,
-      stock: 50,
-      description: "Earthy, aromatic cumin seeds — a foundational spice for tempering and roasting.",
-      images: ["/images/products/cumin-seeds.svg"],
-    },
-    {
-      name: "Coriander Powder 500g",
-      category: "Ground Spices",
-      price: 360,
-      stock: 42,
-      description: "Freshly ground coriander with a citrusy, mild flavor that balances any curry base.",
-      images: ["/images/products/coriander-powder.svg"],
-    },
-    {
-      name: "Karahi Masala",
-      category: "Spice Blends",
-      price: 300,
-      stock: 58,
-      variants: [
-        { name: "100g", price: 300, stock: 38 },
-        { name: "500g", price: 1250, stock: 20 },
-      ],
-      description: "A robust masala blend designed for the perfect restaurant-style karahi at home.",
-      images: ["/images/products/karahi-masala.svg"],
-    },
-    {
-      name: "Pistachios 500g",
-      category: "Dry Fruits",
-      price: 2100,
-      stock: 15,
-      description: "Roasted, lightly salted pistachios — a delicious and nutritious everyday snack.",
-      images: ["/images/products/pistachios.svg"],
-    },
-  ];
-
-  for (const p of productsData) {
+  for (const p of catalogProducts) {
     const slug = slugify(p.name);
-    const variants = p.variants || [{ name: "Standard", price: p.price, stock: p.stock }];
+    const variants = p.variants.map((variant) => ({
+      name: variant.name,
+      price: variant.price,
+      compareAtPrice: variant.compareAtPrice || null,
+      stock: variant.stock,
+    }));
     const totalStock = variants.reduce((sum, variant) => sum + variant.stock, 0);
     const minPrice = Math.min(...variants.map((variant) => variant.price));
-    await prisma.product.upsert({
-      where: { slug },
-      update: {},
-      create: {
+    await prisma.product.create({
+      data: {
         name: p.name,
         slug,
         description: p.description,
         price: minPrice,
         stock: totalStock,
-        images: p.images,
+        images: p.images || [],
         status: "ACTIVE",
         categoryId: categories[p.category].id,
         variants: { create: variants },
       },
     });
   }
-  console.log(`Seeded ${productsData.length} products.`);
-
-  const oldKarahi = await prisma.product.findFirst({
-    where: { slug: "karahi-masala-100g" },
-    include: { variants: true },
-  });
-  const newKarahi = await prisma.product.findFirst({
-    where: { slug: "karahi-masala" },
-  });
-  if (oldKarahi && newKarahi && oldKarahi.id !== newKarahi.id) {
-    await prisma.product.delete({ where: { id: newKarahi.id } });
-  }
-  if (oldKarahi && oldKarahi.variants.length <= 1) {
-    await prisma.productVariant.deleteMany({ where: { productId: oldKarahi.id } });
-    await prisma.productVariant.createMany({
-      data: [
-        { productId: oldKarahi.id, name: "100g", price: 300, stock: oldKarahi.stock || 38 },
-        { productId: oldKarahi.id, name: "500g", price: 1250, stock: 20 },
-      ],
-    });
-    await prisma.product.update({
-      where: { id: oldKarahi.id },
-      data: { name: "Karahi Masala", price: 300, stock: (oldKarahi.stock || 38) + 20 },
-    });
-    console.log("Updated existing Karahi Masala with 100g and 500g variations.");
-  }
+  console.log(`Seeded ${catalogProducts.length} products.`);
 
   const blogsData = [
     {

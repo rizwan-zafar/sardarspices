@@ -5,6 +5,7 @@ import { toPlain } from "@/lib/utils";
 import { productDetailInclude, productListInclude } from "@/lib/product";
 import ProductDetailActions from "@/components/products/ProductDetailActions";
 import ProductGrid from "@/components/products/ProductGrid";
+import SmartImage from "@/components/common/SmartImage";
 
 async function getProduct(slug) {
   const product = await prisma.product.findUnique({
@@ -54,11 +55,7 @@ export default async function ProductDetailPage({ params }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <div className="aspect-square rounded-2xl overflow-hidden bg-brand-50 flex items-center justify-center">
-          {images[0] ? (
-            <img src={images[0]} alt={product.name} className="h-full w-full object-cover" />
-          ) : (
-            <span className="text-8xl">🌶️</span>
-          )}
+          <SmartImage src={images[0]} alt={product.name} className="h-full w-full object-cover" fallback="🌶️" />
         </div>
 
         <div className="flex flex-col gap-5">
