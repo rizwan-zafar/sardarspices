@@ -1,0 +1,141 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: cpanel-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+      CPANEL_USERNAME: ${{ secrets.CPANEL_USERNAME }}
+      CPANEL_PORT: ${{ secrets.CPANEL_PORT || 22 }}
+      CPANEL_APP_PATH: ${{ secrets.CPANEL_APP_PATH }}
+      CPANEL_NODEVENV: ${{ secrets.CPANEL_NODEVENV }}
+      CPANEL_SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+      CPANEL_SSH_PASSPHRASE: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
+      ENV_DATABASE_URL: ${{ secrets.ENV_DATABASE_URL }}
+      ENV_AUTH_SECRET: ${{ secrets.ENV_AUTH_SECRET }}
+      ENV_NEXT_PUBLIC_SITE_URL: ${{ secrets.ENV_NEXT_PUBLIC_SITE_URL }}
+      ENV_ADMIN_NOTIFY_EMAIL: ${{ secrets.ENV_ADMIN_NOTIFY_EMAIL }}
+      ENV_SMTP_HOST: ${{ secrets.ENV_SMTP_HOST }}
+      ENV_SMTP_PORT: ${{ secrets.ENV_SMTP_PORT }}
+      ENV_SMTP_USER: ${{ secrets.ENV_SMTP_USER }}
+      ENV_SMTP_PASS: ${{ secrets.ENV_SMTP_PASS }}
+      ENV_SMTP_FROM: ${{ secrets.ENV_SMTP_FROM }}
+    steps:
+      - name: Check required secrets
+        run: |
+          missing=0
+          for key in CPANEL_HOST CPANEL_USERNAME CPANEL_SSH_KEY CPANEL_APP_PATH CPANEL_NODEVENV ENV_DATABASE_URL ENV_AUTH_SECRET ENV_NEXT_PUBLIC_SITE_URL; do
+            if [ -z "${!key}" ]; then
+              echo "Missing GitHub secret: $key"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "Add secrets in GitHub → Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+          case "$CPANEL_APP_PATH" in
+            /home/*) ;;
+            *)
+              echo "CPANEL_APP_PATH must be the full cPanel folder, e.g. /home/YOURUSER/sardarstore"
+              exit 1
+              ;;
+          esac
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install and build on GitHub
+        env:
+          DATABASE_URL: ${{ secrets.ENV_DATABASE_URL }}
+          AUTH_SECRET: ${{ secrets.ENV_AUTH_SECRET }}
+          JWT_SECRET: ${{ secrets.ENV_AUTH_SECRET }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.ENV_NEXT_PUBLIC_SITE_URL }}
+          SKIP_DB_BUILD: "1"
+        run: |
+          npm ci
+          npx prisma generate
+          NODE_ENV=production npx next build
+
+      - name: Pack release
+        run: |
+          tar \
+            --exclude='./.git' \
+            --exclude='./.github' \
+            --exclude='./.env' \
+            --exclude='./public/uploads' \
+            --exclude='./sshkey' \
+            --exclude='./sshkey.pub' \
+            -czf "$RUNNER_TEMP/sardarstore-release.tar.gz" .
+          cp "$RUNNER_TEMP/sardarstore-release.tar.gz" "$GITHUB_WORKSPACE/sardarstore-release.tar.gz"
+          ls -lh "$GITHUB_WORKSPACE/sardarstore-release.tar.gz"
+
+      - name: Upload and finish on cPanel
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          printf '%s\n' "${CPANEL_SSH_KEY//$'\r'/}" > ~/.ssh/cpanel_deploy
+          chmod 600 ~/.ssh/cpanel_deploy
+
+          if ! grep -q "BEGIN .*PRIVATE KEY" ~/.ssh/cpanel_deploy; then
+            echo "CPANEL_SSH_KEY is not a private key."
+            exit 1
+          fi
+
+          if ! ssh-keygen -y -P "" -f ~/.ssh/cpanel_deploy >/dev/null 2>&1; then
+            if [ -z "${CPANEL_SSH_PASSPHRASE:-}" ]; then
+              echo "Add GitHub secret CPANEL_SSH_PASSPHRASE if the SSH key has a passphrase."
+              exit 1
+            fi
+            ssh-keygen -p -P "$CPANEL_SSH_PASSPHRASE" -N "" -f ~/.ssh/cpanel_deploy
+          fi
+
+          env_quote() {
+            printf "'%s'" "${1//\'/\'\\\'\'}"
+          }
+          umask 077
+          {
+            printf "DATABASE_URL=%s\n" "$(env_quote "$ENV_DATABASE_URL")"
+            printf "AUTH_SECRET=%s\n" "$(env_quote "$ENV_AUTH_SECRET")"
+            printf "JWT_SECRET=%s\n" "$(env_quote "$ENV_AUTH_SECRET")"
+            printf "NEXT_PUBLIC_SITE_URL=%s\n" "$(env_quote "$ENV_NEXT_PUBLIC_SITE_URL")"
+            printf "NODE_ENV=production\n"
+            [ -n "${ENV_ADMIN_NOTIFY_EMAIL:-}" ] && printf "ADMIN_NOTIFY_EMAIL=%s\n" "$(env_quote "$ENV_ADMIN_NOTIFY_EMAIL")"
+            [ -n "${ENV_SMTP_HOST:-}" ] && printf "SMTP_HOST=%s\n" "$(env_quote "$ENV_SMTP_HOST")"
+            [ -n "${ENV_SMTP_PORT:-}" ] && printf "SMTP_PORT=%s\n" "$(env_quote "$ENV_SMTP_PORT")"
+            [ -n "${ENV_SMTP_USER:-}" ] && printf "SMTP_USER=%s\n" "$(env_quote "$ENV_SMTP_USER")"
+            [ -n "${ENV_SMTP_PASS:-}" ] && printf "SMTP_PASS=%s\n" "$(env_quote "$ENV_SMTP_PASS")"
+            [ -n "${ENV_SMTP_FROM:-}" ] && printf "SMTP_FROM=%s\n" "$(env_quote "$ENV_SMTP_FROM")"
+          } > "$RUNNER_TEMP/cpanel.env"
+
+          SSH_OPTS="-i $HOME/.ssh/cpanel_deploy -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 -o ServerAliveInterval=30 -o ServerAliveCountMax=20"
+
+          ssh -p "${CPANEL_PORT}" $SSH_OPTS "${CPANEL_USERNAME}@${CPANEL_HOST}" "echo SSH_OK"
+
+          scp -P "${CPANEL_PORT}" $SSH_OPTS "$RUNNER_TEMP/cpanel.env" "${CPANEL_USERNAME}@${CPANEL_HOST}:/tmp/cpanel.env"
+
+          ssh -p "${CPANEL_PORT}" $SSH_OPTS "${CPANEL_USERNAME}@${CPANEL_HOST}" \
+            "set -euo pipefail; mkdir -p '${CPANEL_APP_PATH}'; tar -xzf - -C '${CPANEL_APP_PATH}'" \
+            < sardarstore-release.tar.gz
+
+          ssh -p "${CPANEL_PORT}" $SSH_OPTS "${CPANEL_USERNAME}@${CPANEL_HOST}" \
+            "set -euo pipefail; mv /tmp/cpanel.env '${CPANEL_APP_PATH}/.env'; chmod 600 '${CPANEL_APP_PATH}/.env'; chmod +x '${CPANEL_APP_PATH}/scripts/cpanel-build.sh'; '${CPANEL_APP_PATH}/scripts/cpanel-build.sh' '${CPANEL_APP_PATH}' '${CPANEL_NODEVENV}'"
+
+          echo "Deployment completed successfully."

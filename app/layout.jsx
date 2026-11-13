@@ -3,6 +3,7 @@ import "./globals.css";
 import SiteChrome from "@/components/common/SiteChrome";
 import { CartProvider } from "@/components/cart/CartContext";
 import { ToastProvider } from "@/components/common/ToastContext";
+import { brandName } from "@/lib/brand";
 
 const heading = Poppins({
   variable: "--font-heading",
@@ -16,9 +17,9 @@ const body = Inter({
 });
 
 export const metadata = {
-  title: "spicer | Premium Spices & Dry Fruits",
+  title: `${brandName} | Premium Spices & Dry Fruits`,
   description:
-    "Shop authentic, premium quality spices, masala blends, and dry fruits online from spicer. Cash on delivery available across Pakistan.",
+    `Shop authentic, premium quality spices, masala blends, and dry fruits online from ${brandName}. Cash on delivery available across Pakistan.`,
 };
 
 export default function RootLayout({ children }) {

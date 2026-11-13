@@ -6,6 +6,7 @@ import { productDetailInclude, productListInclude } from "@/lib/product";
 import ProductDetailActions from "@/components/products/ProductDetailActions";
 import ProductGrid from "@/components/products/ProductGrid";
 import SmartImage from "@/components/common/SmartImage";
+import { brandTitle } from "@/lib/brand";
 
 async function getProduct(slug) {
   const product = await prisma.product.findUnique({
@@ -19,9 +20,9 @@ async function getProduct(slug) {
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const product = await getProduct(slug);
-  if (!product) return { title: "Product Not Found | spicer" };
+  if (!product) return { title: brandTitle("Product Not Found") };
   return {
-    title: `${product.name} | spicer`,
+    title: brandTitle(product.name),
     description: product.description?.slice(0, 150),
   };
 }

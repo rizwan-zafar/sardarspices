@@ -1,4 +1,4 @@
-# spicer — E-commerce Platform
+# Sardar Store — E-commerce Platform
 
 A modern, full-stack e-commerce website built entirely with **Next.js (App Router)**,
 **plain JavaScript**, and **MySQL** (via **Prisma**). The customer storefront,
@@ -56,6 +56,7 @@ lib/
   utils.js       Formatting, slugs, misc helpers
   validation.js  Server-side input validation
   mail.js        Order emails and receipt HTML
+  brand.js       Site name, emails, and page title helpers
 prisma/
   schema.prisma  Database schema
   seed.js        Seed script (admin user, categories, products, blogs)
@@ -96,7 +97,7 @@ Customer → Products → Cart (localStorage) → Checkout (name/email/phone/add
 ### 1. Prerequisites
 
 - Node.js 20+
-- A running MySQL server with a database named `spicer`
+- A running MySQL server with a database named `sardarspices` (or update `DATABASE_URL`)
 
 ### 2. Configure environment
 
@@ -105,14 +106,14 @@ Copy/check `.env` in the project root (already created for local dev):
 ```
 DATABASE_URL="mysql://root:@localhost:3306/sardarspices"
 JWT_SECRET="change-this-in-production"
-ADMIN_SEED_EMAIL="admin@sardarspices.com"
+ADMIN_SEED_EMAIL="admin@sardarstore.com"
 ADMIN_SEED_PASSWORD="Admin@123"
-ADMIN_NOTIFY_EMAIL="admin@sardarspices.com"
+ADMIN_NOTIFY_EMAIL="admin@sardarstore.com"
 SMTP_HOST="smtp.gmail.com"
 SMTP_PORT="587"
 SMTP_USER=""
 SMTP_PASS=""
-SMTP_FROM="Sardar Spices <noreply@sardarspices.com>"
+SMTP_FROM="Sardar Store <noreply@sardarstore.com>"
 ```
 
 Fill in `SMTP_USER` and `SMTP_PASS` to send order emails. For Gmail, use an App Password. If SMTP is left empty, orders still work — emails are just skipped.
@@ -155,10 +156,20 @@ admin panel.
 
 **Default admin login:**
 
-- Email: `admin@spicer.com`
+- Email: `admin@sardarstore.com` (must match your seeded admin account)
 - Password: `Admin@123`
 
 Change these (or the `.env` values before seeding) before deploying to production.
+
+## Deployment (cPanel)
+
+Full playbook: **[docs/deployment-cpanel-nextjs-mysql.md](docs/deployment-cpanel-nextjs-mysql.md)**.
+
+- **CI:** `.github/workflows/ci.yml` — lint + build on PRs.
+- **Production:** `.github/workflows/deploy.yml` — builds on GitHub, uploads tarball to cPanel over SSH, restarts Node app (`server.js`).
+- **Manual pack:** `npm ci && CPANEL_SITE_URL=https://yourdomain.com ./scripts/cpanel-pack.sh`
+
+Add GitHub Actions secrets (`CPANEL_*`, `ENV_DATABASE_URL`, `ENV_AUTH_SECRET`, `ENV_NEXT_PUBLIC_SITE_URL`, optional SMTP). Production `DATABASE_URL` must use `127.0.0.1` on the server.
 
 ## Business Rules Implemented
 

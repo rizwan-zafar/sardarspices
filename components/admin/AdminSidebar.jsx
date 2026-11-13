@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { brandName } from "@/lib/brand";
 
 const LINKS = [
   { href: "/admin", label: "Dashboard", icon: "📊", exact: true },
@@ -26,7 +27,7 @@ export default function AdminSidebar({ admin, className = "", onNavigate }) {
     <div className={`flex flex-col h-full bg-brand-900 text-brand-100 ${className}`}>
       <div className="flex items-center gap-2 px-5 h-16 border-b border-brand-800">
         <span className="text-2xl">🌶️</span>
-        <span className="font-display font-bold text-white">spicer</span>
+        <span className="font-display font-bold text-white">{brandName}</span>
       </div>
 
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto">

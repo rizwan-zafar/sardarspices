@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Button from "@/components/common/Button";
+import { brandName, brandTitle } from "@/lib/brand";
 
 export const metadata = {
-  title: "About Us | spicer",
-  description: "Learn about spicer — our story, our values, and our commitment to quality.",
+  title: brandTitle("About Us"),
+  description: `Learn about ${brandName} — our story, our values, and our commitment to quality.`,
 };
 
 const VALUES = [
@@ -21,7 +22,7 @@ export default function AboutPage() {
           <h1 className="font-display text-4xl font-bold mb-3">Our Story</h1>
           <p className="text-brand-100 max-w-2xl mx-auto">
             From a small family spice stall to a name trusted by thousands of households —
-            this is the story of spicer.
+            {`this is the story of ${brandName}.`}
           </p>
         </div>
       </section>
@@ -35,11 +36,7 @@ export default function AboutPage() {
             Rooted in Tradition, Built for Today
           </h2>
           <p className="text-stone-600 leading-relaxed mb-4">
-            spicer began as a humble family business dedicated to bringing the
-            true flavors of traditional cooking into modern kitchens. What started with
-            a handful of hand-blended masalas has grown into a full range of premium
-            spices, blends, and dry fruits — all while keeping our founding promise:
-            uncompromising quality.
+            {`${brandName} began as a humble family business dedicated to bringing the true flavors of traditional cooking into modern kitchens. What started with a handful of hand-blended masalas has grown into a full range of premium spices, blends, and dry fruits — all while keeping our founding promise: uncompromising quality.`}
           </p>
           <p className="text-stone-600 leading-relaxed">
             Every product that leaves our facility is selected, roasted, and packed with

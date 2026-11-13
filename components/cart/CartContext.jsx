@@ -2,9 +2,11 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { cheapestInStockVariant } from "@/lib/product";
+import { brandSlug } from "@/lib/brand";
 
 const CartContext = createContext(null);
-const STORAGE_KEY = "spicer_cart_v2";
+
+const STORAGE_KEY = `${brandSlug}_cart_v3`;
 
 function cartKey(item) {
   return item.variantId;

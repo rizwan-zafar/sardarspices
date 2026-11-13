@@ -1,7 +1,7 @@
 export const categories = [
   {
     name: "Spices",
-    description: "Whole spices, powders, and masalas from Sardar Spices.",
+    description: "Whole spices, powders, and masalas from Sardar Store.",
     image: "/images/categories/whole-spices.svg",
   },
   {
@@ -74,7 +74,7 @@ export const products = [
     name: "Khas Khas",
     category: "Spices",
     description:
-      "Premium quality Khas Khas (Poppy Seeds) from Sardar Spices, selected for freshness, rich flavor, and superior quality. Hygienically packed to preserve natural aroma and nutritional value. Perfect for desserts, curries, gravies, bakery items, and authentic dishes.",
+      "Premium quality Khas Khas (Poppy Seeds) from Sardar Store, selected for freshness, rich flavor, and superior quality. Hygienically packed to preserve natural aroma and nutritional value. Perfect for desserts, curries, gravies, bakery items, and authentic dishes.",
     images: ["/uploads/1784182522760KHASKHAS.jpeg"],
     variants: [{ name: "Standard", price: 220, stock: 100 }],
   },
@@ -165,7 +165,7 @@ export const products = [
   {
     name: "Ajwain",
     category: "Spices",
-    description: "Sardar Spices ajwain.",
+    description: "Sardar Store ajwain.",
     images: ["/uploads/1784178107178AJWAIN.jpeg"],
     variants: [{ name: "Standard", price: 80, stock: 100 }],
   },

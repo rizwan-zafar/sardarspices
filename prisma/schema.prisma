@@ -1,4 +1,4 @@
-// Prisma schema for spicer e-commerce
+// Prisma schema for Sardar Store e-commerce
 // Simple, normalized relational design (MySQL)
 
 generator client {

@@ -3,9 +3,11 @@ import { toPlain } from "@/lib/utils";
 import CategoryCard from "@/components/categories/CategoryCard";
 import EmptyState from "@/components/common/EmptyState";
 
+import { brandName, brandTitle } from "@/lib/brand";
+
 export const metadata = {
-  title: "Categories | spicer",
-  description: "Browse all product categories at spicer.",
+  title: brandTitle("Categories"),
+  description: `Browse all product categories at ${brandName}.`,
 };
 
 export const dynamic = "force-dynamic";

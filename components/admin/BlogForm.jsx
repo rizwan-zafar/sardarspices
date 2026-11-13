@@ -8,6 +8,7 @@ import Select from "@/components/common/Select";
 import Button from "@/components/common/Button";
 import ImageUploader from "@/components/admin/ImageUploader";
 import { useToast } from "@/components/common/ToastContext";
+import { teamName } from "@/lib/brand";
 
 export default function BlogForm({ blog }) {
   const isEditing = Boolean(blog);
@@ -16,7 +17,7 @@ export default function BlogForm({ blog }) {
 
   const [form, setForm] = useState({
     title: blog?.title || "",
-    author: blog?.author || "spicer Team",
+    author: blog?.author || teamName,
     content: blog?.content || "",
     featuredImage: blog?.featuredImage || "",
     status: blog?.status || "DRAFT",

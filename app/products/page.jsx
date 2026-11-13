@@ -4,9 +4,10 @@ import { productListInclude } from "@/lib/product";
 import ProductGrid from "@/components/products/ProductGrid";
 import ProductFilters from "@/components/products/ProductFilters";
 import PageLinks from "@/components/common/PageLinks";
+import { brandTitle } from "@/lib/brand";
 
 export const metadata = {
-  title: "All Products | spicer",
+  title: brandTitle("All Products"),
   description: "Browse our full range of premium spices, blends, and dry fruits.",
 };
 

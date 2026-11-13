@@ -5,6 +5,7 @@ import { toPlain } from "@/lib/utils";
 import { productListInclude } from "@/lib/product";
 import ProductGrid from "@/components/products/ProductGrid";
 import PageLinks from "@/components/common/PageLinks";
+import { brandName, brandTitle } from "@/lib/brand";
 
 const PAGE_SIZE = 12;
 
@@ -17,10 +18,10 @@ async function getCategory(slug) {
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const category = await getCategory(slug);
-  if (!category) return { title: "Category Not Found | spicer" };
+  if (!category) return { title: brandTitle("Category Not Found") };
   return {
-    title: `${category.name} | spicer`,
-    description: category.description || `Shop ${category.name} at spicer.`,
+    title: brandTitle(category.name),
+    description: category.description || `Shop ${category.name} at ${brandName}.`,
   };
 }
 

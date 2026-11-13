@@ -4,8 +4,10 @@ import { toPlain, formatDate } from "@/lib/utils";
 import PageLinks from "@/components/common/PageLinks";
 import EmptyState from "@/components/common/EmptyState";
 
+import { brandTitle } from "@/lib/brand";
+
 export const metadata = {
-  title: "Blog | spicer",
+  title: brandTitle("Blog"),
   description: "Recipes, tips, and stories from the world of spices.",
 };
 

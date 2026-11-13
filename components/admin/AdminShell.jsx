@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import AdminSidebar from "./AdminSidebar";
+import { adminPanelName } from "@/lib/brand";
 
 export default function AdminShell({ admin, children }) {
   const pathname = usePathname();
@@ -33,7 +34,7 @@ export default function AdminShell({ admin, children }) {
         <header className="lg:hidden flex items-center justify-between h-16 px-4 bg-white border-b border-stone-200 sticky top-0 z-30">
           <div className="flex items-center gap-2">
             <span className="text-xl">🌶️</span>
-            <span className="font-display font-bold text-brand-800">spicer Admin</span>
+            <span className="font-display font-bold text-brand-800">{adminPanelName}</span>
           </div>
           <button
             onClick={() => setMobileOpen(true)}

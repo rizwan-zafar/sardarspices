@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Input from "@/components/common/Input";
 import Button from "@/components/common/Button";
+import { adminEmailDefault, adminPanelName } from "@/lib/brand";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -44,7 +45,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
         <div className="text-center mb-8">
           <div className="text-4xl mb-2">🌶️</div>
-          <h1 className="font-display text-2xl font-bold text-stone-800">spicer Admin</h1>
+          <h1 className="font-display text-2xl font-bold text-stone-800">{adminPanelName}</h1>
           <p className="text-stone-500 text-sm mt-1">Sign in to manage your store</p>
         </div>
 
@@ -55,7 +56,7 @@ export default function AdminLoginPage() {
             name="email"
             value={form.email}
             onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-            placeholder="admin@spicer.com"
+            placeholder={adminEmailDefault}
             required
           />
           <Input

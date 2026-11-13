@@ -4,7 +4,9 @@ import { prisma } from "@/lib/db";
 import { toPlain, formatCurrency, formatDateTime } from "@/lib/utils";
 import Button from "@/components/common/Button";
 
-export const metadata = { title: "Order Confirmed | spicer" };
+import { brandTitle } from "@/lib/brand";
+
+export const metadata = { title: brandTitle("Order Confirmed") };
 
 export default async function CheckoutSuccessPage({ searchParams }) {
   const { order: orderNumber } = await searchParams;

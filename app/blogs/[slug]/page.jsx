@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { toPlain, formatDate } from "@/lib/utils";
+import { brandTitle } from "@/lib/brand";
 
 async function getBlog(slug) {
   const blog = await prisma.blog.findUnique({ where: { slug } });
@@ -12,9 +13,9 @@ async function getBlog(slug) {
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const blog = await getBlog(slug);
-  if (!blog) return { title: "Post Not Found | spicer" };
+  if (!blog) return { title: brandTitle("Post Not Found") };
   return {
-    title: `${blog.title} | spicer`,
+    title: brandTitle(blog.title),
     description: blog.content?.slice(0, 150),
   };
 }

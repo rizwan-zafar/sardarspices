@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "@/components/cart/CartContext";
+import { brandName } from "@/lib/brand";
 
 const LINKS = [
   { href: "/", label: "Home" },
@@ -25,7 +26,7 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-2 font-display">
           <span className="text-2xl">🌶️</span>
           <span className="text-lg font-extrabold tracking-tight text-brand-700">
-            spicer
+            {brandName}
           </span>
         </Link>
 

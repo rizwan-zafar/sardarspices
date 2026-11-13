@@ -1,8 +1,9 @@
 import { getAdminSession } from "@/lib/auth";
 import AdminShell from "@/components/admin/AdminShell";
+import { brandTitle } from "@/lib/brand";
 
 export const metadata = {
-  title: "Admin | spicer",
+  title: brandTitle("Admin"),
   robots: { index: false, follow: false },
 };
 
