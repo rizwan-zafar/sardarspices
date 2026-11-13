@@ -8,15 +8,15 @@ const app = next({ dev: false, hostname, port });
 const handle = app.getRequestHandler();
 
 app
-  .prepare()
+  .prepare() 
   .then(() => {
     createServer((req, res) => {
       handle(req, res, parse(req.url, true));
     }).listen(port, hostname, () => {
-      console.log(`Sardar Store ready on ${hostname}:${port}`);
+      console.log(`Agmoo ready on ${hostname}:${port}`);
     });
   })
   .catch((error) => {
-    console.error("Failed to start Sardar Store server:", error);
+    console.error("Failed to start Agmoo server::", error);
     process.exit(1);
   });
