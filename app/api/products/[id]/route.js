@@ -3,7 +3,13 @@ import { prisma } from "@/lib/db";
 import { getAdminSessionFromRequest } from "@/lib/auth";
 import { slugify, ensureUniqueSlug, toPlain } from "@/lib/utils";
 import { validateProduct, hasErrors } from "@/lib/validation";
-import { productListInclude, normalizeVariants, replaceProductVariants } from "@/lib/product";
+import {
+  productListInclude,
+  normalizeVariants,
+  parseProductImages,
+  replaceProductVariants,
+  stringifyProductImages,
+} from "@/lib/product";
 
 export async function GET(request, { params }) {
   const { id } = await params;
@@ -55,7 +61,9 @@ export async function PUT(request, { params }) {
         name: data.name.trim(),
         slug,
         description: data.description?.trim() || null,
-        images: Array.isArray(data.images) ? data.images : existing.images,
+        images: stringifyProductImages(
+          Array.isArray(data.images) ? data.images : parseProductImages(existing.images)
+        ),
         status: data.status || existing.status,
         categoryId: category.id,
       },

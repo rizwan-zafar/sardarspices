@@ -7,6 +7,7 @@ import {
   brandName,
   teamName,
 } from "../lib/brand.js";
+import { stringifyProductImages } from "../lib/product.js";
 
 const prisma = new PrismaClient();
 
@@ -64,7 +65,7 @@ async function main() {
         description: p.description,
         price: minPrice,
         stock: totalStock,
-        images: p.images || [],
+        images: stringifyProductImages(p.images || []),
         status: "ACTIVE",
         categoryId: categories[p.category].id,
         variants: { create: variants },

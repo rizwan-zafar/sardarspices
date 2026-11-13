@@ -2,7 +2,8 @@
 // Simple, normalized relational design (MySQL)
 
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "client"
 }
 
 datasource db {
@@ -69,7 +70,7 @@ model Product {
   slug        String        @unique
   description String?       @db.Text
   price       Decimal       @db.Decimal(10, 2)
-  images      Json?
+  images      String?   @db.LongText
   stock       Int           @default(0)
   status      ProductStatus @default(ACTIVE)
   createdAt   DateTime      @default(now())
