@@ -23,7 +23,7 @@ export default function Footer() {
           <ul className="space-y-2 text-sm">
             <li><Link href="/products" className="hover:text-white transition-colors">Products</Link></li>
             <li><Link href="/categories" className="hover:text-white transition-colors">Categories</Link></li>
-            <li><Link href="/blogs" className="hover:text-white transition-colors">Blog</Link></li>
+            {/* <li><Link href="/blogs" className="hover:text-white transition-colors">Blog</Link></li> */}
             <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
             <li><Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
           </ul>
@@ -55,6 +55,17 @@ export default function Footer() {
       <div className="border-t border-brand-800">
         <div className="container-app py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-brand-300">
           <p>&copy; {new Date().getFullYear()} {brandName}. All rights reserved.</p>
+          <p>
+            Powered by{" "}
+            <a
+              href="https://mayonity.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand-100 hover:text-white underline underline-offset-2 transition-colors"
+            >
+              Mayonity
+            </a>
+          </p>
           <Link href="/admin/login" className="hover:text-white transition-colors">
             Admin Login
           </Link>

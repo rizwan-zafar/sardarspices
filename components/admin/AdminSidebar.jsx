@@ -9,7 +9,7 @@ const LINKS = [
   { href: "/admin/products", label: "Products", icon: "🌶️" },
   { href: "/admin/categories", label: "Categories", icon: "🗂️" },
   { href: "/admin/orders", label: "Orders", icon: "🧾" },
-  { href: "/admin/blogs", label: "Blog Posts", icon: "📰" },
+  // { href: "/admin/blogs", label: "Blog Posts", icon: "📰" },
   { href: "/admin/messages", label: "Messages", icon: "✉️" },
 ];
 

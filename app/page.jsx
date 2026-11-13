@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { toPlain, formatDate } from "@/lib/utils";
+import { toPlain } from "@/lib/utils";
 import { productListInclude } from "@/lib/product";
 import ProductGrid from "@/components/products/ProductGrid";
 import CategoryCard from "@/components/categories/CategoryCard";
@@ -9,7 +9,7 @@ import Button from "@/components/common/Button";
 export const dynamic = "force-dynamic";
 
 async function getHomeData() {
-  const [featuredProducts, categories, blogs] = await Promise.all([
+  const [featuredProducts, categories] = await Promise.all([
     prisma.product.findMany({
       where: { status: "ACTIVE" },
       orderBy: { createdAt: "desc" },
@@ -21,22 +21,17 @@ async function getHomeData() {
       take: 4,
       include: { _count: { select: { products: true } } },
     }),
-    prisma.blog.findMany({
-      where: { status: "PUBLISHED" },
-      orderBy: { publishedAt: "desc" },
-      take: 3,
-    }),
+    // prisma.blog.findMany({ ... }), // Blog section disabled on storefront
   ]);
 
   return {
     featuredProducts: toPlain(featuredProducts),
     categories: toPlain(categories),
-    blogs: toPlain(blogs),
   };
 }
 
 export default async function HomePage() {
-  const { featuredProducts, categories, blogs } = await getHomeData();
+  const { featuredProducts, categories } = await getHomeData();
 
   return (
     <div>
@@ -124,50 +119,6 @@ export default async function HomePage() {
         </div>
         <ProductGrid products={featuredProducts} />
       </section>
-
-      {/* Blog preview */}
-      {blogs.length > 0 && (
-        <section className="container-app py-16">
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <h2 className="font-display text-2xl sm:text-3xl font-bold text-stone-800">
-                From Our Blog
-              </h2>
-              <p className="text-stone-500 mt-1">Tips, recipes, and spice stories</p>
-            </div>
-            <Link href="/blogs" className="hidden sm:block text-brand-600 font-semibold hover:text-brand-700">
-              View all →
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {blogs.map((blog) => (
-              <Link
-                key={blog.id}
-                href={`/blogs/${blog.slug}`}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white hover:shadow-xl transition-all duration-200 hover:-translate-y-1"
-              >
-                <div className="aspect-video overflow-hidden bg-brand-50">
-                  {blog.featuredImage ? (
-                    <img
-                      src={blog.featuredImage}
-                      alt={blog.title}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-4xl">📰</div>
-                  )}
-                </div>
-                <div className="p-5">
-                  <p className="text-xs text-stone-400 mb-1">{formatDate(blog.publishedAt || blog.createdAt)}</p>
-                  <h3 className="font-semibold text-stone-800 line-clamp-2 group-hover:text-brand-700 transition-colors">
-                    {blog.title}
-                  </h3>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* CTA */}
       <section className="container-app pb-20">
