@@ -3,53 +3,70 @@
 import Link from "next/link";
 import { useCart } from "./CartContext";
 import QuantitySelector from "@/components/products/QuantitySelector";
+import SmartImage from "@/components/common/SmartImage";
 import { formatCurrency } from "@/lib/utils";
 
 export default function CartItemRow({ item }) {
   const { updateQuantity, removeItem } = useCart();
+  const lineTotal = item.price * item.quantity;
 
   return (
-    <div className="flex items-center gap-4 py-5 border-b border-stone-100 last:border-0">
-      <Link href={`/products/${item.slug}`} className="flex-shrink-0">
-        <div className="h-20 w-20 rounded-xl overflow-hidden bg-brand-50 flex items-center justify-center">
-          {item.image ? (
-            <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
-          ) : (
-            <span className="text-3xl">🌶️</span>
-          )}
-        </div>
-      </Link>
-
-      <div className="flex-1 min-w-0">
-        <Link href={`/products/${item.slug}`} className="font-semibold text-stone-800 hover:text-brand-700 line-clamp-1">
-          {item.name}
-        </Link>
-        {item.variantName && (
-          <p className="text-sm text-brand-700 mt-0.5">{item.variantName}</p>
-        )}
-        <p className="text-sm text-stone-500 mt-0.5">{formatCurrency(item.price)} each</p>
-        {item.quantity >= item.stock && (
-          <p className="text-xs text-amber-600 mt-1">Max available stock reached</p>
-        )}
-      </div>
-
-      <div className="flex flex-col items-end gap-2">
-        <QuantitySelector
-          quantity={item.quantity}
-          max={item.stock}
-          onChange={(q) => updateQuantity(item.variantId, q)}
-          size="sm"
-        />
-        <button
-          onClick={() => removeItem(item.variantId)}
-          className="text-xs text-red-500 hover:text-red-700 font-medium"
+    <div className="border-b border-stone-100 py-5 last:border-0">
+      <div className="flex gap-4 sm:grid sm:grid-cols-[5rem_1fr_auto_auto] sm:items-center sm:gap-6">
+        <Link
+          href={`/products/${item.slug}`}
+          className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-stone-100 bg-stone-50 sm:h-[5rem] sm:w-[5rem]"
         >
-          Remove
-        </button>
+          <SmartImage src={item.image} alt={item.name} className="h-full w-full object-cover" fallback="🌶️" />
+        </Link>
+
+        <div className="min-w-0 flex-1">
+          <Link
+            href={`/products/${item.slug}`}
+            className="line-clamp-2 text-sm font-medium text-stone-900 hover:text-brand-700 sm:line-clamp-1"
+          >
+            {item.name}
+          </Link>
+          {item.variantName && (
+            <p className="mt-0.5 text-xs text-stone-500">{item.variantName}</p>
+          )}
+          <p className="mt-1 text-xs text-stone-500">{formatCurrency(item.price)} each</p>
+          {item.quantity >= item.stock && (
+            <p className="mt-1 text-xs font-medium text-amber-700">Maximum stock in cart</p>
+          )}
+          <button
+            type="button"
+            onClick={() => removeItem(item.variantId)}
+            className="mt-2 text-xs font-medium text-stone-500 underline-offset-2 hover:text-red-600 hover:underline sm:hidden"
+          >
+            Remove
+          </button>
+        </div>
+
+        <div className="flex flex-col items-end gap-2 sm:items-center">
+          <QuantitySelector
+            quantity={item.quantity}
+            max={item.stock}
+            onChange={(q) => updateQuantity(item.variantId, q)}
+            size="sm"
+          />
+          <button
+            type="button"
+            onClick={() => removeItem(item.variantId)}
+            className="hidden text-xs font-medium text-stone-500 hover:text-red-600 sm:block"
+          >
+            Remove
+          </button>
+        </div>
+
+        <p className="hidden text-right text-sm font-semibold text-stone-900 sm:block sm:w-24">
+          {formatCurrency(lineTotal)}
+        </p>
       </div>
 
-      <div className="hidden sm:block w-24 text-right font-semibold text-stone-800">
-        {formatCurrency(item.price * item.quantity)}
+      <div className="mt-3 flex justify-between border-t border-dashed border-stone-100 pt-3 text-sm sm:hidden">
+        <span className="text-stone-500">Line total</span>
+        <span className="font-semibold text-stone-900">{formatCurrency(lineTotal)}</span>
       </div>
     </div>
   );

@@ -130,7 +130,7 @@ export async function POST(request) {
         data: {
           orderNumber: generateOrderNumber(),
           customerName: data.customerName.trim(),
-          email: data.email.trim().toLowerCase(),
+          email: (data.email && String(data.email).trim().toLowerCase()) || "",
           phone: data.phone.trim(),
           address: data.address.trim(),
           paymentMethod: "COD",

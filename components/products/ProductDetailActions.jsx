@@ -8,11 +8,13 @@ import QuantitySelector from "./QuantitySelector";
 import Button from "@/components/common/Button";
 import { cheapestInStockVariant, salePrice } from "@/lib/product";
 import PriceDisplay from "./PriceDisplay";
+import { formatCurrency } from "@/lib/utils";
 
 export default function ProductDetailActions({ product }) {
-  const variants = Array.isArray(product.variants) && product.variants.length
-    ? product.variants
-    : [{ id: null, name: "Standard", price: product.price, stock: product.stock }];
+  const variants =
+    Array.isArray(product.variants) && product.variants.length
+      ? product.variants
+      : [{ id: null, name: "Standard", price: product.price, stock: product.stock }];
   const defaultVariant = cheapestInStockVariant({ ...product, variants }) || variants[0];
   const [selectedId, setSelectedId] = useState(defaultVariant?.id);
   const [quantity, setQuantity] = useState(1);
@@ -24,6 +26,7 @@ export default function ProductDetailActions({ product }) {
   const stock = Number(selected?.stock || 0);
   const outOfStock = stock <= 0;
   const allOutOfStock = variants.every((variant) => Number(variant.stock) <= 0);
+  const { onSale, price } = salePrice(selected);
 
   const selectVariant = (variant) => {
     setSelectedId(variant.id);
@@ -37,84 +40,93 @@ export default function ProductDetailActions({ product }) {
 
   const handleBuyNow = () => {
     addItem(product, quantity, selected);
-    router.push("/cart");
+    router.push("/checkout");
   };
 
+  const stockLabel = allOutOfStock
+    ? "Out of stock"
+    : outOfStock
+      ? "Pick another size"
+      : stock > 10
+        ? "In stock"
+        : `${stock} left`;
+
   return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <p className="text-sm font-medium text-stone-600 mb-2">Choose size</p>
-        <div className="flex flex-wrap gap-2">
-          {variants.map((variant) => {
-            const available = Number(variant.stock) > 0;
-            const isSelected = variant.id === selected?.id;
-            return (
-              <button
-                key={variant.id || variant.name}
-                type="button"
-                onClick={() => selectVariant(variant)}
-                disabled={!available}
-                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                  isSelected
-                    ? "border-brand-600 bg-brand-600 text-white"
-                    : available
-                    ? "border-stone-300 bg-white text-stone-700 hover:border-brand-400"
-                    : "border-stone-200 bg-stone-100 text-stone-400 cursor-not-allowed"
-                }`}
-              >
-                {variant.name}
-                {!available ? " · Out of stock" : ""}
-              </button>
-            );
-          })}
-        </div>
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <PriceDisplay variant={selected} size="lg" />
+        {onSale && (
+          <span className="rounded bg-red-600 px-2 py-0.5 text-[10px] font-bold uppercase text-white">Sale</span>
+        )}
+        <span
+          className={`text-xs font-medium ${
+            allOutOfStock || outOfStock ? "text-red-600" : "text-emerald-700"
+          }`}
+        >
+          {stockLabel}
+        </span>
       </div>
 
-      <div className="flex items-center gap-3 flex-wrap">
-        <PriceDisplay variant={selected} size="lg" />
-        {salePrice(selected).onSale && (
-          <span className="rounded-full bg-red-100 text-red-700 text-xs font-semibold px-3 py-1">
-            Sale
-          </span>
-        )}
-        {allOutOfStock ? (
-          <span className="rounded-full bg-red-100 text-red-700 text-xs font-semibold px-3 py-1">
-            Out of Stock
-          </span>
-        ) : outOfStock ? (
-          <span className="rounded-full bg-red-100 text-red-700 text-xs font-semibold px-3 py-1">
-            Out of Stock
-          </span>
-        ) : (
-          <span className="rounded-full bg-green-100 text-green-700 text-xs font-semibold px-3 py-1">
-            {stock > 10 ? "In Stock" : `Only ${stock} left`}
-          </span>
-        )}
-      </div>
+      {variants.length > 1 && (
+        <div>
+          <p className="mb-1.5 text-xs font-medium text-stone-600">Size</p>
+          <div className="flex flex-wrap gap-1.5">
+            {variants.map((variant) => {
+              const available = Number(variant.stock) > 0;
+              const isSelected = variant.id === selected?.id;
+              return (
+                <button
+                  key={variant.id || variant.name}
+                  type="button"
+                  onClick={() => selectVariant(variant)}
+                  disabled={!available}
+                  className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition ${
+                    isSelected
+                      ? "border-brand-600 bg-brand-600 text-white"
+                      : available
+                        ? "border-stone-200 bg-white text-stone-800 hover:border-brand-400"
+                        : "cursor-not-allowed border-stone-100 text-stone-400 line-through opacity-60"
+                  }`}
+                >
+                  {variant.name}
+                  {available && (
+                    <span className={`ml-1 text-xs ${isSelected ? "text-brand-100" : "text-stone-500"}`}>
+                      {formatCurrency(salePrice(variant).price)}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {!allOutOfStock && !outOfStock && (
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-stone-600">Qty</span>
+            <QuantitySelector quantity={quantity} onChange={setQuantity} max={stock} size="sm" />
+          </div>
+          <p className="text-sm text-stone-500 sm:ml-auto">
+            Total{" "}
+            <span className="font-semibold text-stone-900">{formatCurrency(price * quantity)}</span>
+          </p>
+        </div>
+      )}
 
       {allOutOfStock ? (
-        <div className="rounded-xl bg-stone-100 px-4 py-3 text-stone-600 font-medium">
-          This product is currently out of stock.
-        </div>
+        <p className="text-sm text-stone-600">Sold out — see related items below.</p>
       ) : outOfStock ? (
-        <div className="rounded-xl bg-stone-100 px-4 py-3 text-stone-600 font-medium">
-          This size is currently out of stock. Please choose another variation.
-        </div>
+        <p className="text-sm text-amber-800">This size is unavailable.</p>
       ) : (
-        <>
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-stone-600">Quantity:</span>
-            <QuantitySelector quantity={quantity} onChange={setQuantity} max={stock} />
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button onClick={handleAddToCart} size="lg" className="flex-1">
-              Add to Cart
-            </Button>
-            <Button onClick={handleBuyNow} variant="secondary" size="lg" className="flex-1">
-              Buy Now
-            </Button>
-          </div>
-        </>
+        <div className="grid grid-cols-2 gap-2">
+          <Button onClick={handleAddToCart} size="md" className="w-full !rounded-lg">
+            Add to cart
+          </Button>
+          <Button onClick={handleBuyNow} size="md" className="w-full !rounded-lg !bg-stone-900 hover:!bg-stone-800">
+            Buy now
+          </Button>
+        </div>
       )}
     </div>
   );

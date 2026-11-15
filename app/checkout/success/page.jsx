@@ -29,7 +29,7 @@ export default async function CheckoutSuccessPage({ searchParams }) {
         <h1 className="font-display text-3xl font-bold text-stone-800 mb-2">Order Placed!</h1>
         <p className="text-stone-500">
           Thank you, {plainOrder.customerName}. Your order has been received and will be delivered soon.
-          {plainOrder.email ? ` A confirmation email has been sent to ${plainOrder.email}.` : ""}
+          {plainOrder.phone ? ` We may call you on ${plainOrder.phone} to confirm.` : ""}
         </p>
       </div>
 
@@ -63,18 +63,18 @@ export default async function CheckoutSuccessPage({ searchParams }) {
           <span>{formatCurrency(plainOrder.totalAmount)}</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-          <div>
-            <p className="text-stone-400 text-xs mb-1">Delivery Address</p>
+        <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <p className="mb-1 text-xs text-stone-400">Delivery address</p>
             <p className="text-stone-700">{plainOrder.address}</p>
           </div>
           <div>
-            <p className="text-stone-400 text-xs mb-1">Email</p>
-            <p className="text-stone-700">{plainOrder.email || "—"}</p>
+            <p className="mb-1 text-xs text-stone-400">Phone</p>
+            <p className="font-medium text-stone-700">{plainOrder.phone}</p>
           </div>
           <div>
-            <p className="text-stone-400 text-xs mb-1">Phone</p>
-            <p className="text-stone-700">{plainOrder.phone}</p>
+            <p className="mb-1 text-xs text-stone-400">Customer</p>
+            <p className="font-medium text-stone-700">{plainOrder.customerName}</p>
           </div>
         </div>
 

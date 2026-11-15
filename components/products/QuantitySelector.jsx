@@ -4,7 +4,7 @@ export default function QuantitySelector({ quantity, onChange, max = 99, min = 1
   const btnSize = size === "sm" ? "h-8 w-8 text-sm" : "h-10 w-10";
 
   return (
-    <div className="inline-flex items-center rounded-full border border-stone-300 overflow-hidden">
+    <div className="inline-flex items-center overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
       <button
         type="button"
         onClick={dec}

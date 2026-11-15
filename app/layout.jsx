@@ -1,19 +1,14 @@
-import { Poppins, Inter } from "next/font/google";
+import { Roboto } from "next/font/google";
 import "./globals.css";
 import SiteChrome from "@/components/common/SiteChrome";
 import { CartProvider } from "@/components/cart/CartContext";
 import { ToastProvider } from "@/components/common/ToastContext";
 import { brandName } from "@/lib/brand";
 
-const heading = Poppins({
-  variable: "--font-heading",
+const roboto = Roboto({
+  variable: "--font-roboto",
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
-});
-
-const body = Inter({
-  variable: "--font-body",
-  subsets: ["latin"],
+  weight: ["300", "400", "500", "700", "900"],
 });
 
 export const metadata = {
@@ -24,7 +19,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${heading.variable} ${body.variable}`}>
+    <html lang="en" className={roboto.variable}>
       <body className="min-h-screen flex flex-col font-sans antialiased">
         <ToastProvider>
           <CartProvider>

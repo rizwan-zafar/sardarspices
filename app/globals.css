@@ -39,8 +39,8 @@
   --color-gold-500: var(--color-gold-500);
   --color-gold-600: var(--color-gold-600);
 
-  --font-sans: var(--font-body);
-  --font-display: var(--font-heading);
+  --font-sans: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
 }
 
 * {

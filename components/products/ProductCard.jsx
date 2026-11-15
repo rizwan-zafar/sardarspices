@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/components/cart/CartContext";
 import { useToast } from "@/components/common/ToastContext";
 import { cheapestInStockVariant, salePrice } from "@/lib/product";
@@ -10,6 +11,7 @@ import SmartImage from "@/components/common/SmartImage";
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
   const { showToast } = useToast();
+  const router = useRouter();
   const image = Array.isArray(product.images) && product.images[0];
   const variants = Array.isArray(product.variants) ? product.variants : [];
   const defaultVariant = cheapestInStockVariant(product);
@@ -18,9 +20,7 @@ export default function ProductCard({ product }) {
   const { onSale } = salePrice(defaultVariant);
   const lowStock = !outOfStock && Number(defaultVariant.stock) <= 5;
 
-  const handleAddToCart = (e) => {
-    e.preventDefault();
-    if (outOfStock) return;
+  const addDefaultToCart = () => {
     addItem(product, 1, defaultVariant);
     showToast(
       hasMultiple
@@ -29,61 +29,99 @@ export default function ProductCard({ product }) {
     );
   };
 
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (outOfStock) return;
+    addDefaultToCart();
+  };
+
+  const handleBuyNow = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (outOfStock) return;
+    addDefaultToCart();
+    router.push("/checkout");
+  };
+
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
+    <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
       <Link href={`/products/${product.slug}`} className="block">
-        <div className="relative aspect-square overflow-hidden bg-brand-50">
+        <div className="relative aspect-[4/5] overflow-hidden bg-gradient-to-b from-white to-stone-100 sm:aspect-square">
           <SmartImage
             src={image}
             alt={product.name}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            framed
+            className="transition-transform duration-500 group-hover:scale-[1.02]"
           />
-          {outOfStock && (
-            <span className="absolute top-3 left-3 rounded-full bg-stone-900/80 px-2.5 py-1 text-xs font-semibold text-white">
-              Out of Stock
-            </span>
-          )}
-          {!outOfStock && lowStock && (
-            <span className="absolute top-3 left-3 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-semibold text-white">
-              Only {defaultVariant.stock} left
-            </span>
-          )}
-          {onSale && !outOfStock && (
-            <span className="absolute top-3 right-3 rounded-full bg-red-600 px-2.5 py-1 text-xs font-semibold text-white">
-              Sale
-            </span>
-          )}
+          <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3">
+            {outOfStock ? (
+              <span className="rounded-md bg-stone-900/90 px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-white">
+                Out of stock
+              </span>
+            ) : lowStock ? (
+              <span className="rounded-md bg-amber-600/95 px-2 py-1 text-[11px] font-medium text-white">
+                {defaultVariant.stock} left
+              </span>
+            ) : (
+              <span />
+            )}
+            {onSale && !outOfStock && (
+              <span className="rounded-md bg-red-600 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
+                Sale
+              </span>
+            )}
+          </div>
         </div>
       </Link>
-      <div className="flex flex-1 flex-col gap-1.5 p-4">
+
+      <div className="flex flex-1 flex-col border-t border-stone-100 p-4">
         {product.category?.name && (
-          <span className="text-xs font-medium uppercase tracking-wide text-brand-500">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-stone-500">
             {product.category.name}
-          </span>
+          </p>
         )}
-        <Link href={`/products/${product.slug}`}>
-          <h3 className="font-semibold text-stone-800 line-clamp-2 hover:text-brand-700 transition-colors">
+        <Link href={`/products/${product.slug}`} className="mt-1 block">
+          <h3 className="line-clamp-2 text-sm font-medium leading-snug text-stone-900 transition-colors group-hover:text-brand-700 sm:text-[15px]">
             {product.name}
           </h3>
         </Link>
         {hasMultiple && (
-          <p className="text-xs text-stone-500">{variants.map((variant) => variant.name).join(" · ")}</p>
+          <p className="mt-1 line-clamp-1 text-xs text-stone-500">
+            {variants.map((variant) => variant.name).join(" · ")}
+          </p>
         )}
-        <div className="mt-auto flex items-center justify-between pt-3">
-          <PriceDisplay variant={defaultVariant || product} prefix={hasMultiple ? "From" : ""} />
-          <button
-            onClick={handleAddToCart}
-            disabled={outOfStock}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-500 text-white transition-colors hover:bg-brand-600 disabled:bg-stone-300 disabled:cursor-not-allowed"
-            aria-label="Add to cart"
-            title={outOfStock ? "Out of stock" : hasMultiple ? "Add smallest pack to cart" : "Add to cart"}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-          </button>
+
+        <div className="mt-auto pt-4">
+          <PriceDisplay
+            variant={defaultVariant || product}
+            prefix={hasMultiple ? "From" : ""}
+            size="sm"
+          />
+          {outOfStock ? (
+            <p className="mt-3 rounded-lg bg-stone-100 py-2.5 text-center text-sm font-medium text-stone-500">
+              Unavailable
+            </p>
+          ) : (
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                className="rounded-lg border border-stone-300 bg-white px-2 py-2.5 text-xs font-semibold text-stone-800 transition-colors hover:border-brand-500 hover:bg-brand-50 sm:text-sm"
+              >
+                Add to cart
+              </button>
+              <button
+                type="button"
+                onClick={handleBuyNow}
+                className="rounded-lg bg-brand-600 px-2 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-brand-700 sm:text-sm"
+              >
+                Buy now
+              </button>
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }
